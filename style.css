@@ -1,3 +1,5 @@
+@import './project-detail.css';
+
 :root {
   --bg-color: #111;
   --text-color: #fff;
@@ -96,10 +98,24 @@ body {
   text-transform: uppercase;
   padding: 20px;
   text-decoration: none;
-  /* Reset link style */
   color: var(--text-color);
-  /* Ensure text color */
+  transition: all 0.3s ease;
+}
+
+/* Specific styling for clickable UI overlays (links) */
+a.ui-overlay {
   cursor: pointer;
+}
+
+a.ui-overlay:hover {
+  opacity: 0.7;
+  letter-spacing: 1px;
+}
+
+/* Subtle indicator for clickable profile name */
+.top-left:hover::after {
+  content: ' →';
+  font-weight: 400;
 }
 
 .top-left {
@@ -110,6 +126,9 @@ body {
 .top-right {
   top: 0;
   right: 0;
+  cursor: default;
+  opacity: 0.6;
+  /* Dim the static label */
 }
 
 .bottom-center {
@@ -442,10 +461,8 @@ body {
 
 .profile-body {
   overflow-y: auto !important;
-  /* Allow scroll on profile */
+  overflow-x: hidden !important;
   position: relative !important;
-  /* Changed from static to relative */
-  height: auto !important;
   min-height: 100vh;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: auto;
@@ -501,8 +518,6 @@ body {
   width: 100%;
   height: 100%;
   background-color: #333;
-  background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400&auto=format&fit=crop');
-  /* Placeholder */
   background-size: cover;
   background-position: center;
 }
@@ -580,5 +595,3 @@ body {
 .contact-btn:hover {
   transform: scale(1.05);
 }
-
-@import './project-detail.css';

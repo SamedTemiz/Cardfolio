@@ -3,3 +3,11 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# SQL scripts (database schema)
+supabase_setup.sql
