@@ -8,7 +8,7 @@ gsap.registerPlugin(Draggable);
 // Initialize Language Engine
 initI18n();
 
-console.log("GSAP Draggable Portfolio Initialized");
+console.log("GSAP Draggable Cardfolio Initialized");
 
 // --- Configuration: loaded dynamically via Supabase ---
 let projects = [];
@@ -38,10 +38,10 @@ async function init() {
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
         container.innerHTML = `<div style="display:flex; height:100vh; align-items:center; justify-content:center; color:var(--text2); font-family:sans-serif; flex-direction:column; gap:15px;">
-            <h2 style="color:var(--text1); font-size:24px; font-weight:700; letter-spacing:0.05em; margin-bottom:10px;">Find a Portfolio</h2>
+            <h2 style="color:var(--text1); font-size:24px; font-weight:700; letter-spacing:0.05em; margin-bottom:10px;">Find a Cardfolio</h2>
             <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
                 <input type="text" id="username-search" placeholder="Enter username (e.g. timrashard)" style="padding:12px 16px; border-radius:8px; border:none; background:#1a1a1e; color:var(--text1); outline:none; font-family:inherit; min-width:250px;" />
-                <button id="btn-search-user" class="btn btn-primary" style="padding:12px 24px; font-weight:700;">View Portfolio</button>
+                <button id="btn-search-user" class="btn btn-primary" style="padding:12px 24px; font-weight:700;">View Cardfolio</button>
             </div>
             <a href="admin.html" style="color:var(--accent); text-decoration:none; margin-top:20px; font-size:14px; font-weight:600;">Go to Admin Panel -></a>
         </div>`;
@@ -59,6 +59,9 @@ async function init() {
         return;
     }
 
+    // Default to locked if in stack mode (no hasVisited or explicit stack)
+    if (!isGridMode) lockScroll(); else unlockScroll();
+
     projects = await getProjects(username);
 
     if (projects.length === 0) {
@@ -66,7 +69,7 @@ async function init() {
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
         container.innerHTML = `<div style="display:flex; height:100vh; align-items:center; justify-content:center; color:var(--text2); font-family:sans-serif; flex-direction:column; gap:15px;">
-            <p>No portfolio found for user <strong>${username}</strong>.</p>
+            <p>No Cardfolio found for user <strong>${username}</strong>.</p>
             <a href="index.html" style="color:var(--accent); text-decoration:none; margin-top:10px; font-weight:600;">&larr; Search again</a>
         </div>`;
         return;
@@ -331,8 +334,10 @@ function toGrid() {
     if (iconStack) iconStack.style.display = 'block';
 
     if (window.innerWidth <= 768) {
+        unlockScroll();
         toGridMobile();
     } else {
+        unlockScroll();
         toGridDesktop();
     }
 }
@@ -346,8 +351,10 @@ function toStack() {
     if (iconStack) iconStack.style.display = 'none';
 
     if (window.innerWidth <= 768) {
+        lockScroll();
         toStackMobile();
     } else {
+        lockScroll();
         toStackDesktop();
     }
 }
@@ -429,7 +436,10 @@ function toGridMobile() {
 
     // Setup Mobile Scroll Container
     draggableInstances.forEach(d => d.disable());
-    container.classList.add("scroll-mode");
+    container.classList.add("grid-scroll-active");
+    document.documentElement.classList.add("grid-scroll-body");
+    document.body.classList.add("grid-scroll-body");
+
     if (!scrollSpacer.parentNode) {
         container.appendChild(scrollSpacer);
     }
@@ -490,7 +500,9 @@ function toStackDesktop() {
 
 function toStackMobile() {
     if (scrollSpacer.parentNode) scrollSpacer.parentNode.removeChild(scrollSpacer);
-    container.classList.remove("scroll-mode");
+    container.classList.remove("grid-scroll-active");
+    document.documentElement.classList.remove("grid-scroll-body");
+    document.body.classList.remove("grid-scroll-body");
     draggableInstances.forEach(d => d.enable());
 
     gsap.set(cards, { top: "50%", left: "50%", marginTop: 0 });
@@ -510,5 +522,26 @@ function toStackMobile() {
     });
 }
 
+
+function lockScroll() {
+    document.documentElement.classList.add('is-stack');
+    document.body.classList.add('is-stack');
+    document.getElementById('app').classList.add('is-stack');
+    document.getElementById('container').classList.add('is-stack');
+}
+
+function unlockScroll() {
+    document.documentElement.classList.remove('is-stack');
+    document.body.classList.remove('is-stack');
+    document.getElementById('app').classList.remove('is-stack');
+    document.getElementById('container').classList.remove('is-stack');
+
+    // Also clear grid scroll overrides if we are switching away
+    if (window.innerWidth > 768 || !isGridMode) {
+        document.documentElement.classList.remove("grid-scroll-body");
+        document.body.classList.remove("grid-scroll-body");
+        container.classList.remove("grid-scroll-active");
+    }
+}
 
 init();

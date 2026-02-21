@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel — Portfolio</title>
+    <title>Admin Panel — Cardfolio</title>
     <link rel="stylesheet" href="./admin.css" />
 </head>
 
@@ -30,8 +30,7 @@
             <form id="auth-form">
                 <div class="form-group">
                     <label data-i18n="admin.authEmail">EMAIL</label>
-                    <input type="email" id="auth-email" required placeholder="timrashard@gmail.com"
-                        class="auth-input" />
+                    <input type="email" id="auth-email" required placeholder="admin@example.com" class="auth-input" />
                 </div>
                 <div class="form-group">
                     <label data-i18n="admin.authPassword">PASSWORD</label>
@@ -54,10 +53,20 @@
     <!-- ── Main App (Hidden until logged in) ── -->
     <div class="admin-layout" id="admin-layout" style="display:none;">
 
+        <!-- Mobile Header Toggle -->
+        <button class="admin-mobile-toggle" id="admin-mobile-toggle" aria-label="Toggle Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
         <!-- ── Sidebar ── -->
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar" id="admin-sidebar">
             <div class="admin-sidebar-logo">
-                <div class="logo-tag">Portfolio</div>
+                <div class="logo-tag">Cardfolio</div>
                 <h1>ADMIN PANEL</h1>
             </div>
 
@@ -94,7 +103,7 @@
         <main class="admin-main">
 
             <!-- PROJECTS SECTION -->
-            <section id="section-projects" class="admin-section active">
+            <section id="section-projects" class="admin-section">
 
                 <!-- Add Project Form -->
                 <div class="add-card">
@@ -155,7 +164,7 @@
             </section>
 
             <!-- PROFILE SECTION -->
-            <section id="section-profile" class="admin-section">
+            <section id="section-profile" class="admin-section active">
 
                 <div class="section-header">
                     <h2 data-i18n="admin.sectionProfile">Profile</h2>
@@ -173,14 +182,11 @@
                 <div class="profile-form">
                     <!-- Profile Picture Upload -->
                     <div class="form-row" style="margin-bottom: 20px;">
-                        <div class="form-group"
-                            style="align-items: center; border: 1px dashed rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; display:flex; gap: 20px; flex-direction: row; width: 100%;">
+                        <div class="profile-pic-container">
                             <img id="prof-pic-preview"
-                                src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
-                                style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;" />
-                            <div style="flex:1;">
-                                <label style="margin-bottom:8px; display:block;" data-i18n="admin.profPic">Profile
-                                    Picture</label>
+                                src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" />
+                            <div class="profile-pic-info">
+                                <label data-i18n="admin.profPic">Profile Picture</label>
                                 <input type="file" id="prof-pic-file" accept="image/png, image/jpeg, image/webp" />
                             </div>
                         </div>

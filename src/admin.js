@@ -57,8 +57,24 @@ navItems.forEach(btn => {
         btn.classList.add("active");
         document.getElementById(`section-${target}`).classList.add("active");
         if (target === "profile") loadProfile();
+
+        // Close sidebar on mobile after navigation
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById("admin-sidebar");
+            if (sidebar) sidebar.classList.remove("active");
+        }
     });
 });
+
+// ─── Mobile Menu Toggle ───────────────────────────────────────────────────────
+const mobileToggle = document.getElementById("admin-mobile-toggle");
+const sidebar = document.getElementById("admin-sidebar");
+
+if (mobileToggle && sidebar) {
+    mobileToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+    });
+}
 
 // Initial Section Load
 const firstNav = document.querySelector(".admin-nav-item.active");
@@ -68,6 +84,7 @@ if (firstNav && firstNav.dataset.section === "profile") {
 
 // ─── Projects ─────────────────────────────────────────────────────────────────
 let selectedProjectId = null;
+let projectSortable = null;
 
 export async function renderProjects() {
     const projects = await getProjects();
@@ -147,17 +164,23 @@ export async function renderProjects() {
     });
 
     // ── SortableJS Logic ──
-    if (window.Sortable) {
-        Sortable.create(list, {
+    if (window.Sortable && list) {
+        if (projectSortable) {
+            projectSortable.destroy();
+        }
+
+        projectSortable = Sortable.create(list, {
             animation: 150,
+            forceFallback: true, // Use fallback for mobile consistency
+            fallbackClass: 'sortable-fallback',
             ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
             onEnd: async function (evt) {
                 const oldIndex = evt.oldIndex;
                 const newIndex = evt.newIndex;
 
                 if (oldIndex !== newIndex) {
                     await reorderProjects(oldIndex, newIndex);
-                    // Re-render instantly to show UI badges adapting
                     await renderProjects();
                 }
             }
@@ -175,7 +198,7 @@ document.getElementById("btn-add-project").addEventListener("click", async () =>
     }
     const btn = document.getElementById("btn-add-project");
     btn.disabled = true;
-    await addProject(name, desc);
+    await addProject({ name, description: desc });
     document.getElementById("new-project-name").value = "";
     document.getElementById("new-project-desc").value = "";
     await renderProjects();

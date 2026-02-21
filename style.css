@@ -22,38 +22,48 @@ body {
 }
 
 /* Specific Lock for Main App (Index) */
-.noscroll-body {
-  overflow: hidden;
-  position: fixed;
-  /* Forces lock on iOS */
-  width: 100%;
-  height: 100%;
-  overscroll-behavior: none;
+/* Specific Lock classes for JS to toggle */
+.noscroll-body,
+body.is-stack {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+  overscroll-behavior: none !important;
 }
 
-.noscroll-html {
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
-  overscroll-behavior: none;
+.noscroll-html,
+html.is-stack {
+  overflow: hidden !important;
+  height: 100% !important;
+  width: 100% !important;
+  overscroll-behavior: none !important;
 }
 
 #app {
   position: relative;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100vh;
+  /* overflow: hidden removed to allow body scroll */
 }
 
 #container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  z-index: 10;
+  /* overflow: hidden removed to allow scrolling */
+}
+
+/* Special lock for Stack Mode (handled by JS adding .is-stack) */
+#app.is-stack,
+#container.is-stack {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Default: No scroll */
-  z-index: 10;
 }
 
 /* Scroll Mode for Container (Mobile Grid) */
@@ -68,7 +78,7 @@ body {
 
 /* Background Text */
 .bg-text-container {
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -91,7 +101,7 @@ body {
 
 /* UI Overlay */
 .ui-overlay {
-  position: absolute;
+  position: fixed;
   z-index: 100;
   font-size: 14px;
   font-weight: 700;
@@ -165,7 +175,7 @@ a.ui-overlay:hover {
 
 /* Bottom Area: button + footer text, stacked */
 .bottom-area {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -226,7 +236,7 @@ a.ui-overlay:hover {
 
 /* Drag Hint Animation */
 .drag-hint {
-  position: absolute;
+  position: fixed;
   top: 50%;
   /* Center the wrapper in the middle of the cards */
   left: 50%;
@@ -443,6 +453,29 @@ a.ui-overlay:hover {
 
   .section p {
     font-size: 0.95rem;
+  }
+
+  /* Support for Mobile Grid Scroll */
+  #container.grid-scroll-active {
+    position: relative !important;
+    height: auto !important;
+    min-height: 100vh;
+    overflow-y: visible !important;
+    padding-bottom: 200px;
+    touch-action: pan-y !important;
+  }
+
+  #container.grid-scroll-active .card {
+    touch-action: pan-y !important;
+  }
+
+  /* When grid scroll is active, we must NOT fixed-position the body */
+  html.grid-scroll-body,
+  body.grid-scroll-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    height: auto !important;
   }
 }
 

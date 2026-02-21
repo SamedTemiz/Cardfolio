@@ -1,10 +1,10 @@
 // Dictionary for all translatable strings
 export const translations = {
     en: {
-        "nav.portfolio": "PORTFOLIO",
+        "nav.portfolio": "CARDFOLIO",
         "nav.name": "YUNUS EMRE TEMIZ",
         "nav.title": "GRAPHIC DESIGN STUDENT",
-        "nav.back": "← BACK TO PORTFOLIO",
+        "nav.back": "← BACK TO CARDFOLIO",
 
         "index.dragToExplore": "DRAG TO EXPLORE",
         "index.gridView": "GRID VIEW",
@@ -80,10 +80,10 @@ export const translations = {
         "error.weakPassword": "Password should be at least 6 characters."
     },
     tr: {
-        "nav.portfolio": "PORTFOLYO",
-        "nav.name": "YUNUS EMRE TEMİZ",
+        "nav.portfolio": "CARDFOLIO",
+        "nav.name": "YUNUS EMRE TEMIZ",
         "nav.title": "GRAFİK TASARIM ÖĞRENCİSİ",
-        "nav.back": "← PORTFOLYOYA DÖN",
+        "nav.back": "← CARDFOLIO'YA DÖN",
 
         "index.dragToExplore": "KEŞFETMEK İÇİN SÜRÜKLE",
         "index.gridView": "IZGARA GÖRÜNÜMÜ",
