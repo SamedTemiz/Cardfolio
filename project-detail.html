@@ -18,8 +18,8 @@
 
     <!-- Minimal Metadata Overlay -->
     <div class="ui-overlay gallery-meta">
-        <h1 class="gallery-title" data-i18n="gallery.title1">NEON CYBERPUNK</h1>
-        <p class="gallery-year" data-i18n="gallery.desc1">2026 - LEAD DESIGNER</p>
+        <h1 class="gallery-title" id="gallery-title"></h1>
+        <p class="gallery-year" id="gallery-year"></p>
     </div>
 
     <!-- Slider Controls -->
@@ -36,30 +36,9 @@
 
     <!-- The Horizontal Scroll Container -->
     <div class="gallery-container" id="galleryContainer">
-
-        <!-- Slide 1 -->
-        <div class="gallery-slide">
-            <img src="https://picsum.photos/seed/neo1/1600/1200" alt="Project 1">
-        </div>
-
-        <!-- Slide 2 -->
-        <div class="gallery-slide">
-            <img src="https://picsum.photos/seed/neo2/1600/1200" alt="Project 2">
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="gallery-slide">
-            <img src="https://picsum.photos/seed/neo3/1600/1200" alt="Project 3">
-        </div>
-
-        <!-- Slide 4 -->
-        <div class="gallery-slide">
-            <img src="https://picsum.photos/seed/neo4/1600/1200" alt="Project 4">
-        </div>
-
+        <!-- Content injected dynamically -->
     </div>
 
-    <!-- Simple script for the next/prev buttons -->
     <script>
         const container = document.getElementById('galleryContainer');
         const prevBtn = document.getElementById('prevBtn');
@@ -74,7 +53,6 @@
             container.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
         });
 
-        // Fade out hint on first interaction
         const galleryHint = document.getElementById('galleryDragHint');
         function dismissHint() {
             if (!galleryHint) return;
@@ -93,6 +71,65 @@
     <script type="module">
         import { initI18n } from "./src/i18n.js";
         initI18n();
+    </script>
+
+    <!-- Gallery Data Loader -->
+    <script type="module">
+        import { getProjects, getProfile } from "./src/data.js";
+
+        async function initGallery() {
+            // 1. Parse ID and User from URL
+            const params = new URLSearchParams(window.location.search);
+            const projectId = params.get('id');
+            const username = params.get('user');
+
+            // Set back link to preserve tenant
+            const backBtn = document.querySelector('.gallery-nav-back');
+            if (backBtn && username) {
+                backBtn.href = `index.html?user=${username}`;
+            }
+
+            // 2. Load Profile (for page title)
+            const profile = await getProfile(username);
+            if (profile && profile.name) {
+                document.title = `Gallery | ${profile.name}`;
+            }
+
+            // 3. Load Project Data
+            const projects = await getProjects(username);
+            const project = projects.find(p => p.id === projectId) || projects[0];
+
+            if (project) {
+                // 4. Update Title and Desc
+                const titleEl = document.getElementById('gallery-title');
+                const yearEl = document.getElementById('gallery-year');
+
+                if (titleEl) {
+                    titleEl.textContent = project.name;
+                    titleEl.removeAttribute('data-i18n'); // Don't let i18n override dynamic titles
+                }
+                if (yearEl) {
+                    yearEl.textContent = project.description;
+                    yearEl.removeAttribute('data-i18n');
+                }
+
+                // 5. Inject Images
+                const galleryContainer = document.getElementById('galleryContainer');
+                if (galleryContainer && project.images) {
+                    galleryContainer.innerHTML = project.images.map(url => `
+                        <div class="gallery-slide">
+                            <img src="${url}" alt="${project.name}">
+                        </div>
+                    `).join('');
+                }
+            } else {
+                // Not found
+                document.getElementById('gallery-title').textContent = "Project Not Found";
+                document.getElementById('gallery-year').textContent = "";
+            }
+        }
+
+        initGallery();
     </script>
 </body>
 
