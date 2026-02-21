@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" class="noscroll-html">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | Yunus Emre Temiz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="project-detail.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+</head>
+
+<body class="gallery-body">
+
+    <!-- Top Navigation -->
+    <a href="index.html" class="ui-overlay gallery-nav-back" data-i18n="nav.back">&larr; BACK TO PORTFOLIO</a>
+
+    <!-- Minimal Metadata Overlay -->
+    <div class="ui-overlay gallery-meta">
+        <h1 class="gallery-title" data-i18n="gallery.title1">NEON CYBERPUNK</h1>
+        <p class="gallery-year" data-i18n="gallery.desc1">2026 - LEAD DESIGNER</p>
+    </div>
+
+    <!-- Slider Controls -->
+    <div class="gallery-controls">
+        <button id="prevBtn" class="gallery-btn">&larr;</button>
+        <button id="nextBtn" class="gallery-btn">&rarr;</button>
+    </div>
+
+    <!-- Swipe Hint (icon only, no text) -->
+    <div class="gallery-drag-hint" id="galleryDragHint">
+        <dotlottie-player src="/drag_anim.lottie" background="transparent" speed="1" loop autoplay
+            style="width: 180px; height: 180px;"></dotlottie-player>
+    </div>
+
+    <!-- The Horizontal Scroll Container -->
+    <div class="gallery-container" id="galleryContainer">
+
+        <!-- Slide 1 -->
+        <div class="gallery-slide">
+            <img src="https://picsum.photos/seed/neo1/1600/1200" alt="Project 1">
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="gallery-slide">
+            <img src="https://picsum.photos/seed/neo2/1600/1200" alt="Project 2">
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="gallery-slide">
+            <img src="https://picsum.photos/seed/neo3/1600/1200" alt="Project 3">
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="gallery-slide">
+            <img src="https://picsum.photos/seed/neo4/1600/1200" alt="Project 4">
+        </div>
+
+    </div>
+
+    <!-- Simple script for the next/prev buttons -->
+    <script>
+        const container = document.getElementById('galleryContainer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Scroll one full viewport width at a time
+        nextBtn.addEventListener('click', () => {
+            container.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            container.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
+        });
+
+        // Fade out hint on first interaction
+        const galleryHint = document.getElementById('galleryDragHint');
+        function dismissHint() {
+            if (!galleryHint) return;
+            galleryHint.style.opacity = '0';
+            setTimeout(() => galleryHint.remove(), 500);
+            container.removeEventListener('scroll', dismissHint);
+            container.removeEventListener('touchstart', dismissHint);
+        }
+        if (galleryHint) {
+            container.addEventListener('scroll', dismissHint, { passive: true });
+            container.addEventListener('touchstart', dismissHint, { passive: true });
+        }
+    </script>
+
+    <!-- Language Engine -->
+    <script type="module">
+        import { initI18n } from "./src/i18n.js";
+        initI18n();
+    </script>
+</body>
+
+</html>

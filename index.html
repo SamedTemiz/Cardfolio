@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class="noscroll-html">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Draggable Portfolio | Webflow + GSAP</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="noscroll-body">
+    <div id="app">
+        <!-- Background Text -->
+        <div class="bg-text-container">
+            <h1 class="bg-text" data-i18n="nav.portfolio">PORTFOLIO</h1>
+        </div>
+
+        <!-- UI Overlays -->
+        <a href="profile.html" class="ui-overlay top-left" data-i18n="nav.name">YUNUS EMRE TEMIZ</a>
+        <div class="ui-overlay top-right" data-i18n="nav.title">GRAPHIC DESIGN STUDENT</div>
+
+        <!-- Draggable Container -->
+        <div class="draggable-container" id="container">
+            <!-- Cards will be injected here or hardcoded -->
+        </div>
+
+        <!-- Drag Hint Animation Overlay -->
+        <div class="drag-hint" id="dragHint">
+            <span data-i18n="index.dragToExplore">Drag to Explore</span>
+            <dotlottie-player src="/drag_anim.lottie" background="transparent" speed="1" loop autoplay
+                class="responsive-lottie"></dotlottie-player>
+        </div>
+
+        <!-- Bottom Area: Toggle Button + Footer Text -->
+        <div class="bottom-area">
+            <button id="drag-reset-btn" class="action-btn icon-btn" aria-label="Toggle View">
+                <!-- Grid Icon -->
+                <svg id="icon-grid" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <!-- Stack Icon (Hidden by default) -->
+                <svg id="icon-stack" style="display: none;" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 8l8-4 8 4-8 4-8-4z"></path>
+                    <path d="M4 12l8 4 8-4"></path>
+                    <path d="M4 16l8 4 8-4"></path>
+                </svg>
+            </button>
+            <div class="bottom-text-inner">
+                <span data-i18n="index.footerRights">© 2026 YUNUS EMRE TEMIZ</span>
+                <span data-i18n="index.footerIntern">AVAILABLE FOR INTERNSHIPS</span>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

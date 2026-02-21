@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yunus Emre Temiz - Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="profile-body">
+
+    <a href="index.html" class="ui-overlay top-left" data-i18n="nav.back">&larr; BACK TO PORTFOLIO</a>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-pic-container">
+                <div class="profile-pic"></div> <!-- Placeholder for user image -->
+            </div>
+            <h1 class="name-title" data-i18n="nav.name">YUNUS EMRE TEMIZ</h1>
+            <p class="tagline" data-i18n="profile.tagline">High School Student & Creative Developer</p>
+        </div>
+
+        <div class="profile-content">
+            <div class="section about">
+                <h2 data-i18n="profile.aboutTitle">ABOUT ME</h2>
+                <p data-i18n="profile.aboutText">
+                    Hello! I'm a high school student with a deep passion for digital creativity.
+                    I bridge the gap between design and code, creating interactive experiences that live on the web.
+                    Currently looking for internship opportunities where I can learn, grow, and contribute my skills in
+                    front-end development.
+                </p>
+            </div>
+
+            <div class="section skills">
+                <h2 data-i18n="profile.skillsTitle">SKILLS</h2>
+                <div class="skill-tags">
+                    <span>HTML5</span>
+                    <span>CSS3</span>
+                    <span>JavaScript</span>
+                    <span>GSAP</span>
+                    <span>Responsive Design</span>
+                    <span>UI/UX Basics</span>
+                    <span>Git</span>
+                </div>
+            </div>
+
+            <div class="section contact">
+                <h2 data-i18n="profile.contactTitle">CONTACT</h2>
+                <a href="mailto:contact@example.com" class="contact-btn" data-i18n="profile.getInTouch">GET IN TOUCH</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Engine -->
+    <script type="module">
+        import { initI18n } from "./src/i18n.js";
+        initI18n();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,584 @@
+:root {
+  --bg-color: #111;
+  --text-color: #fff;
+  --accent-color: #fff;
+  --font-main: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+/* Specific Lock for Main App (Index) */
+.noscroll-body {
+  overflow: hidden;
+  position: fixed;
+  /* Forces lock on iOS */
+  width: 100%;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+.noscroll-html {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  overscroll-behavior: none;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* Default: No scroll */
+  z-index: 10;
+}
+
+/* Scroll Mode for Container (Mobile Grid) */
+#container.scroll-mode {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+  pointer-events: auto;
+  /* Ensure clicks/scrolls work */
+}
+
+/* Background Text */
+.bg-text-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+  text-align: center;
+  width: 100%;
+}
+
+.bg-text {
+  font-size: 18vw;
+  line-height: 1;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  white-space: nowrap;
+}
+
+/* UI Overlay */
+.ui-overlay {
+  position: absolute;
+  z-index: 100;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 20px;
+  text-decoration: none;
+  /* Reset link style */
+  color: var(--text-color);
+  /* Ensure text color */
+  cursor: pointer;
+}
+
+.top-left {
+  top: 0;
+  left: 0;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+}
+
+.bottom-center {
+  bottom: 20px;
+  /* Aligned to sit right above the footer text band */
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.bottom-center button {
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .bottom-center {
+    bottom: 70px;
+    /* Above the two-line mobile footer + padding */
+  }
+}
+
+.bottom-text {
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* Bottom Area: button + footer text, stacked */
+.bottom-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+  pointer-events: none;
+}
+
+.bottom-area button {
+  pointer-events: auto;
+}
+
+.bottom-text-inner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  font-size: 12px;
+  opacity: 0.6;
+  color: var(--text-color);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Action Button */
+.action-btn {
+  background: white;
+  color: black;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.2s;
+}
+
+.action-btn.icon-btn {
+  padding: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Drag Hint Animation */
+.drag-hint {
+  position: absolute;
+  top: 50%;
+  /* Center the wrapper in the middle of the cards */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  /* Let clicks pass through */
+  opacity: 0;
+  /* Hidden by default, JS will reveal */
+  transition: opacity 0.5s ease;
+}
+
+.drag-hint span {
+  position: absolute;
+  top: -140px;
+  /* Reduced from -200px to keep it hovering just over the cards */
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  width: 300px;
+  text-align: center;
+}
+
+.drag-hint .responsive-lottie {
+  width: 220px;
+  height: 220px;
+  /* Invert the dark Lottie animation to be white */
+  filter: invert(1) brightness(1.5) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.8));
+  margin-top: -10px;
+  /* Pull it slightly closer to the text */
+}
+
+/* Draggable Container */
+.draggable-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  /* overflow: visible; */
+}
+
+.card {
+  position: absolute;
+  width: 300px;
+  /* Fixed width */
+  height: 400px;
+  /* Fixed height */
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  cursor: grab;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  will-change: transform;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  /* For the overlay */
+}
+
+/* Desktop Hover Overlay */
+@media (min-width: 769px) {
+  .card::after {
+    content: attr(data-hover-text);
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .card:hover::after {
+    opacity: 1;
+  }
+
+  .card:active {
+    cursor: grabbing;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .drag-hint .responsive-lottie {
+    width: 160px;
+    /* Increased from 100px */
+    height: 160px;
+  }
+
+  .drag-hint span {
+    top: -80px;
+    /* Reduced to bring it down closer to the cards on mobile */
+    font-size: 11px;
+    /* Smaller text on mobile */
+    letter-spacing: 1px;
+  }
+
+  .bg-text {
+    font-size: 15vw;
+    line-height: 1.2;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    opacity: 0.2;
+    /* Subtler background text */
+    letter-spacing: 15px;
+  }
+
+  .bg-text-container {
+    left: 10px;
+    transform: translate(0, -50%);
+    text-align: left;
+    width: auto;
+  }
+
+  .ui-overlay {
+    padding: 12px;
+    font-size: 11px;
+  }
+
+  .ui-overlay.top-left,
+  .ui-overlay.top-right {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 6px;
+    margin: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Make sure top-right doesn't run out of bounds */
+  .ui-overlay.top-right {
+    right: 0;
+    max-width: 40vw;
+    /* Prevent overlapping with top left */
+    text-align: right;
+  }
+
+  .bottom-center {
+    bottom: 25px;
+    /* Move to true bottom instead of floating right */
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    z-index: 9999;
+    position: fixed;
+  }
+
+  .action-btn {
+    padding: 16px 20px;
+    writing-mode: horizontal-tb;
+    /* Horizontal button on mobile looks better */
+    text-orientation: mixed;
+    font-size: 13px;
+    width: 100%;
+    border-radius: 50px;
+    /* Pill shape */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .bottom-text {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-size: 10px;
+    padding-bottom: 90px;
+    /* Space for the bottom button */
+    text-align: center;
+    width: 100%;
+    white-space: normal;
+  }
+
+  /* Profile Page Mobile Adjustments */
+  .profile-container {
+    padding: 100px 15px 120px;
+  }
+
+  .profile-pic-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  .name-title {
+    font-size: 2.2rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+    margin-bottom: 40px;
+  }
+
+  .section {
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+
+  .section h2 {
+    font-size: 0.85rem;
+  }
+
+  .section p {
+    font-size: 0.95rem;
+  }
+}
+
+/* --- PROFILE PAGE STYLES --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-body {
+  overflow-y: auto !important;
+  /* Allow scroll on profile */
+  position: relative !important;
+  /* Changed from static to relative */
+  height: auto !important;
+  min-height: 100vh;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: auto;
+  padding-bottom: 50px;
+  background-color: var(--bg-color);
+}
+
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 100px 20px 40px;
+  text-align: center;
+}
+
+.profile-header {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+  /* Star hidden */
+  animation-delay: 0.2s;
+}
+
+.section {
+  margin-bottom: 60px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+  /* Start hidden */
+  animation-delay: 0.5s;
+}
+
+.section:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+.section:nth-child(3) {
+  animation-delay: 0.9s;
+}
+
+.profile-pic-container {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.profile-pic {
+  width: 100%;
+  height: 100%;
+  background-color: #333;
+  background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=400&auto=format&fit=crop');
+  /* Placeholder */
+  background-size: cover;
+  background-position: center;
+}
+
+.name-title {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 60px;
+}
+
+.profile-content {
+  text-align: left;
+}
+
+.section {
+  margin-bottom: 60px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.section p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.skill-tags span {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.skill-tags span:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.contact-btn {
+  display: inline-block;
+  background: #fff;
+  color: #000;
+  padding: 15px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: transform 0.2s;
+}
+
+.contact-btn:hover {
+  transform: scale(1.05);
+}
+
+@import './project-detail.css';
