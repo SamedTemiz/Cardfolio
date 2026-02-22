@@ -20,7 +20,7 @@ let scrollSpacer = document.createElement("div");
 scrollSpacer.classList.add("scroll-spacer");
 let draggableInstances = [];
 let isGridMode = sessionStorage.getItem("portfolioViewMode") === "grid";
-const hasVisited = sessionStorage.getItem("portfolioVisited") === "true";
+let isIntroDone = false;
 
 // GSAP MatchMedia Instance
 let mm = gsap.matchMedia();
@@ -98,15 +98,8 @@ async function init() {
     initDraggable();
     setupMatchMedia();
 
-    if (!hasVisited) {
-        sessionStorage.setItem("portfolioVisited", "true");
-        // Play the full intro
-        setTimeout(animateIntro, 100);
-    } else {
-        // Fast resume: immediately calculate layout, then quickly fade in
-        if (isGridMode) toGrid(); else toStack();
-        gsap.to(cards, { opacity: 1, duration: 0.6, delay: 0.1 });
-    }
+    // Play the full intro on every load to ensure WOW effect
+    setTimeout(animateIntro, 100);
 }
 
 function createCards() {
@@ -129,10 +122,10 @@ function createCards() {
             top: "50%",
             xPercent: -50,
             yPercent: -50,
-            rotation: hasVisited ? (Math.random() - 0.5) * 10 : 0,
+            rotation: (Math.random() - 0.5) * 10,
             opacity: 0,
             // Start the cards further out on the Y axis for a drop-in effect on first visit
-            y: hasVisited ? 0 : -window.innerHeight - 500,
+            y: -window.innerHeight - 500,
             zIndex: projects.length - index
         });
 
@@ -158,6 +151,7 @@ function animateIntro() {
             },
             ease: "power2.out",
             onComplete: () => {
+                isIntroDone = true;
                 // Force layout update after intro based on current state
                 if (isGridMode) toGrid(); else toStack();
 
@@ -230,8 +224,8 @@ function initDraggable() {
 function setupMatchMedia() {
     // Desktop Setup
     mm.add("(min-width: 769px)", (context) => {
-        // Run logic immediately to establish state ONLY if returning
-        if (hasVisited) {
+        // Run logic immediately to establish state ONLY if intro is done
+        if (isIntroDone) {
             if (isGridMode) {
                 toGridDesktop();
             } else {
@@ -247,7 +241,7 @@ function setupMatchMedia() {
 
     // Mobile Setup
     mm.add("(max-width: 768px)", (context) => {
-        if (hasVisited) {
+        if (isIntroDone) {
             if (isGridMode) {
                 toGridMobile();
             } else {
@@ -273,7 +267,11 @@ function checkBounds(card) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    const margin = 100;
+    const isMobile = window.innerWidth <= 768;
+    // On mobile, use a much tighter margin so if the card is dragged ~75% out it snaps back
+    const margin = isMobile ? -50 : 100;
+
+    // Check if the center of the card is outside the 'allowed' box
     const isOut =
         centerX < -margin ||
         centerX > viewportWidth + margin ||
@@ -292,7 +290,6 @@ function checkBounds(card) {
             targetRot = 0;
             targetScale = parseFloat(card.dataset.gridScale) || 1;
         } else {
-            const isMobile = window.innerWidth <= 768;
             targetScale = isMobile ? 0.55 : 1;
             if (isMobile) targetY = -30;
         }
