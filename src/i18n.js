@@ -14,6 +14,13 @@ export const translations = {
 
         "card.viewProject": "VIEW",
 
+        "landing.title": "Find a Cardfolio",
+        "landing.placeholder": "Enter username (e.g. timrashard)",
+        "landing.btnView": "View Cardfolio",
+        "landing.btnAdmin": "Go to Admin Panel ->",
+        "landing.notFound": "No Cardfolio found for user",
+        "landing.searchAgain": "← Search again",
+
         "profile.tagline": "High School Student & Creative Developer",
         "profile.aboutTitle": "ABOUT ME",
         "profile.aboutText": "Hello! I'm a high school student with a deep passion for digital creativity. I bridge the gap between design and code, creating interactive experiences that live on the web. Currently looking for internship opportunities where I can learn, grow, and contribute my skills in front-end development.",
@@ -92,6 +99,13 @@ export const translations = {
         "index.footerIntern": "STAJ İÇİN MÜSAİT",
 
         "card.viewProject": "İNCELE",
+
+        "landing.title": "Bir Cardfolio Bul",
+        "landing.placeholder": "Kullanıcı adı girin (örn. timrashard)",
+        "landing.btnView": "Cardfolio'yu Görüntüle",
+        "landing.btnAdmin": "Yönetim Paneline Git ->",
+        "landing.notFound": "Bu kullanıcı için Cardfolio bulunamadı:",
+        "landing.searchAgain": "← Tekrar ara",
 
         "profile.tagline": "Lise Öğrencisi ve Etkileşim Geliştiricisi",
         "profile.aboutTitle": "HAKKIMDA",
