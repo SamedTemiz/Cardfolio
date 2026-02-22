@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Draggable Cardfolio | Webflow + GSAP</title>
     <link rel="stylesheet" href="./style.css" />
@@ -20,8 +20,8 @@
         </div>
 
         <!-- UI Overlays -->
-        <a href="profile.html" class="ui-overlay top-left"></a>
-        <div class="ui-overlay top-right"></div>
+        <a href="profile.html" class="ui-overlay top-left" style="display: none;"></a>
+        <div class="ui-overlay top-right" style="display: none;"></div>
 
         <!-- Draggable Container -->
         <div class="draggable-container" id="container">
@@ -29,14 +29,14 @@
         </div>
 
         <!-- Drag Hint Animation Overlay -->
-        <div class="drag-hint" id="dragHint">
+        <div class="drag-hint" id="dragHint" style="display: none;">
             <span data-i18n="index.dragToExplore">Drag to Explore</span>
             <dotlottie-player src="/drag_anim.lottie" background="transparent" speed="1" loop autoplay
                 class="responsive-lottie"></dotlottie-player>
         </div>
 
         <!-- Bottom Area: Toggle Button + Footer Text -->
-        <div class="bottom-area">
+        <div class="bottom-area" style="display: none;">
             <button id="drag-reset-btn" class="action-btn icon-btn" aria-label="Toggle View">
                 <!-- Grid Icon -->
                 <svg id="icon-grid" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -56,7 +56,12 @@
             </button>
             <div class="bottom-text-inner">
                 <span></span>
-                <span></span>
+                <a href="admin.html" aria-label="Edit Portfolio" class="footer-edit-link" title="Edit Portfolio">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                </a>
             </div>
         </div>
     </div>

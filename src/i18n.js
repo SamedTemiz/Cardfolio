@@ -15,9 +15,11 @@ export const translations = {
         "card.viewProject": "VIEW",
 
         "landing.title": "Find a Cardfolio",
-        "landing.placeholder": "Enter username (e.g. timrashard)",
+        "landing.heroTitle": "Your Next-Gen Portfolio.",
+        "landing.heroDesc": "Turn your projects into a draggable, stackable, and visually stunning experience in seconds.",
+        "landing.placeholder": "Enter username",
         "landing.btnView": "View Cardfolio",
-        "landing.btnAdmin": "Go to Admin Panel ->",
+        "landing.btnAdmin": "Create Cardfolio",
         "landing.notFound": "No Cardfolio found for user",
         "landing.searchAgain": "← Search again",
 
@@ -31,7 +33,7 @@ export const translations = {
         "gallery.title1": "NEON CYBERPUNK",
         "gallery.desc1": "2026 - LEAD DESIGNER",
 
-        "admin.sidebarTitle": "ADMIN PANEL",
+        "admin.sidebarTitle": "CARDFOLIO STUDIO",
         "admin.navProjects": "Projects",
         "admin.navProfile": "Profile",
         "admin.backToSite": "← Back to Site",
@@ -45,7 +47,7 @@ export const translations = {
         "admin.authNoAccount": "Don't have an account?",
         "admin.authAlreadyAccount": "Already have an account?",
         "admin.registerSuccess": "Registration successful! You are now logged in.",
-        "admin.loading": "Loading Admin Panel...",
+        "admin.loading": "Preparing Workspace...",
 
         "admin.sectionProjects": "Projects",
         "admin.addProjectTitle": "Add New Project",
@@ -62,7 +64,10 @@ export const translations = {
 
         "admin.imagePanelTitle": "Images",
         "admin.btnClose": "Close",
+        "admin.btnCancel": "Cancel",
         "admin.btnUpload": "Upload Image(s)",
+        "admin.cropTitle": "Crop Profile Picture",
+        "admin.btnCropSave": "Crop & Save",
 
         "admin.sectionProfile": "Profile",
         "admin.btnSave": "Save",
@@ -71,6 +76,9 @@ export const translations = {
         "admin.profTitle": "Title",
         "admin.profTagline": "Tagline",
         "admin.profAbout": "About Me",
+        "admin.profUsername": "Portfolio Username",
+        "admin.profUrl": "Your Portfolio Link",
+        "admin.btnCopyUrl": "Copy Link",
         "admin.profEmail": "Email",
         "admin.profSkills": "Skills",
         "admin.btnAddSkill": "Add",
@@ -80,6 +88,7 @@ export const translations = {
         "toast.projectDeleted": "Project deleted.",
         "toast.profileSaved": "Profile saved.",
         "toast.imagesUploaded": "Images uploaded.",
+        "toast.urlCopied": "Link copied to clipboard!",
         "toast.error": "Error: {e}",
         "error.invalidCredentials": "Invalid email or password.",
         "error.emailNotConfirmed": "Please confirm your email address.",
@@ -101,9 +110,11 @@ export const translations = {
         "card.viewProject": "İNCELE",
 
         "landing.title": "Bir Cardfolio Bul",
-        "landing.placeholder": "Kullanıcı adı girin (örn. timrashard)",
-        "landing.btnView": "Cardfolio'yu Görüntüle",
-        "landing.btnAdmin": "Yönetim Paneline Git ->",
+        "landing.heroTitle": "Yeni Nesil Portfolyo Deneyimi.",
+        "landing.heroDesc": "Projelerinizi saniyeler içinde büyüleyici bir dijital deneyime dönüştürün.",
+        "landing.placeholder": "Kullanıcı adı girin",
+        "landing.btnView": "Görüntüle",
+        "landing.btnAdmin": "Cardfolio Oluştur",
         "landing.notFound": "Bu kullanıcı için Cardfolio bulunamadı:",
         "landing.searchAgain": "← Tekrar ara",
 
@@ -117,7 +128,7 @@ export const translations = {
         "gallery.title1": "SİBER PUNK NEON",
         "gallery.desc1": "2026 - BAŞ TASARIMCI",
 
-        "admin.sidebarTitle": "ADMİN PANELİ",
+        "admin.sidebarTitle": "CARDFOLIO STÜDYO",
         "admin.navProjects": "Projeler",
         "admin.navProfile": "Profil",
         "admin.backToSite": "← Siteye Dön",
@@ -131,7 +142,7 @@ export const translations = {
         "admin.authNoAccount": "Hesabınız yok mu?",
         "admin.authAlreadyAccount": "Zaten hesabınız var mı?",
         "admin.registerSuccess": "Kayıt başarılı! Giriş yapıldı.",
-        "admin.loading": "Yönetim Paneli Yükleniyor...",
+        "admin.loading": "Çalışma Alanı Hazırlanıyor...",
 
         "admin.sectionProjects": "Projeler",
         "admin.addProjectTitle": "Yeni Proje Ekle",
@@ -148,7 +159,10 @@ export const translations = {
 
         "admin.imagePanelTitle": "Görseller",
         "admin.btnClose": "Kapat",
+        "admin.btnCancel": "İptal",
         "admin.btnUpload": "Görsel(leri) Yükle",
+        "admin.cropTitle": "Profil Resmini Kırp",
+        "admin.btnCropSave": "Kırp & Kaydet",
 
         "admin.sectionProfile": "Profil",
         "admin.btnSave": "Kaydet",
@@ -157,6 +171,9 @@ export const translations = {
         "admin.profTitle": "Başlık",
         "admin.profTagline": "Slogan",
         "admin.profAbout": "Hakkımda",
+        "admin.profUsername": "Portfolyo Kullanıcı Adı",
+        "admin.profUrl": "Portfolyo Bağlantın",
+        "admin.btnCopyUrl": "Bağlantıyı Kopyala",
         "admin.profEmail": "E-posta",
         "admin.profSkills": "Yetenekler",
         "admin.btnAddSkill": "Ekle",
@@ -166,6 +183,7 @@ export const translations = {
         "toast.projectDeleted": "Proje silindi.",
         "toast.profileSaved": "Profil kaydedildi.",
         "toast.imagesUploaded": "Görseller yüklendi.",
+        "toast.urlCopied": "Bağlantı panoya kopyalandı!",
         "toast.error": "Hata: {e}",
         "error.invalidCredentials": "Geçersiz e-posta veya şifre.",
         "error.emailNotConfirmed": "Lütfen e-posta adresinizi doğrulayın.",

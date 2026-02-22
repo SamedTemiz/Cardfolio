@@ -831,6 +831,34 @@ textarea {
     color: var(--text2);
 }
 
+/* ── URL Copy Box ── */
+.url-copy-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-0);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 3px 4px 3px 12px;
+    gap: 8px;
+    height: 38px;
+}
+
+.url-copy-box span {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: all;
+}
+
+.url-copy-box .btn {
+    flex-shrink: 0;
+    margin: 0;
+    height: 100%;
+}
+
 /* ── Custom Modal ── */
 .modal-overlay {
     position: fixed;
@@ -1045,6 +1073,18 @@ textarea {
 
     .auth-box h2 {
         font-size: 20px;
+    }
+
+    .url-copy-box {
+        flex-direction: column;
+        height: auto;
+        padding: 8px;
+        align-items: stretch;
+    }
+    
+    .url-copy-box span {
+        padding: 4px 4px 8px 4px;
+        text-align: center;
     }
 
     /* Modal Mobile */

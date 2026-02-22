@@ -323,6 +323,12 @@ export async function loadProfile() {
     document.getElementById("prof-about").value = p.about || "";
     document.getElementById("prof-email").value = p.email || "";
 
+    const usernameInput = document.getElementById("prof-username");
+    if (usernameInput) {
+        usernameInput.value = p.username || "";
+        updateUrlPreview();
+    }
+
     // Set Avatar Preview
     const avatarPreview = document.getElementById("prof-pic-preview");
     if (avatarPreview) {
@@ -337,6 +343,48 @@ export async function loadProfile() {
 
     currentSkills = [...(p.skills || [])];
     renderSkillTags();
+}
+
+function updateUrlPreview() {
+    const input = document.getElementById("prof-username");
+    const preview = document.getElementById("prof-url-preview");
+    if (!input || !preview) return;
+    
+    let val = input.value.trim().toLowerCase();
+    
+    // Attempt to get the clean base URL of the site
+    let baseUrl = window.location.origin + window.location.pathname.replace('/admin.html', '/');
+    if (!baseUrl.endsWith('/')) baseUrl += '/';
+    
+    if (val) {
+        preview.textContent = `${baseUrl}?user=${val}`;
+    } else {
+        preview.textContent = `${baseUrl}?user=`;
+    }
+}
+
+const profUsernameInput = document.getElementById("prof-username");
+if (profUsernameInput) {
+    profUsernameInput.addEventListener("input", (e) => {
+        // Enforce valid URL characters only (lowercase alphanumeric, dashes, underscores)
+        let val = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+        if (val !== e.target.value) {
+            e.target.value = val;
+        }
+        updateUrlPreview();
+    });
+}
+
+const btnCopyUrl = document.getElementById("btn-copy-url");
+if (btnCopyUrl) {
+    btnCopyUrl.addEventListener("click", () => {
+        const preview = document.getElementById("prof-url-preview");
+        if (preview && preview.textContent) {
+            navigator.clipboard.writeText(preview.textContent).then(() => {
+                showToast(t("toast.urlCopied"));
+            }).catch(err => console.error("Could not copy:", err));
+        }
+    });
 }
 
 function renderSkillTags() {
@@ -374,15 +422,56 @@ document.getElementById("new-skill").addEventListener("keydown", e => {
     if (e.key === "Enter") document.getElementById("btn-add-skill").click();
 });
 
-// Live Profile Picture Preview
+// Live Profile Picture Preview with Cropper.js
 const profPicFile = document.getElementById("prof-pic-file");
 const profPicPreview = document.getElementById("prof-pic-preview");
+
+let cropper;
+let croppedProfileBlob = null;
+const cropModal = document.getElementById("crop-modal");
+const cropImage = document.getElementById("crop-image");
+
 if (profPicFile && profPicPreview) {
     profPicFile.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file) {
-            profPicPreview.src = URL.createObjectURL(file);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                cropImage.src = event.target.result;
+                cropModal.style.display = 'flex';
+                
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
+            };
+            reader.readAsDataURL(file);
         }
+    });
+}
+
+const btnCancelCrop = document.getElementById("btn-cancel-crop");
+if (btnCancelCrop) {
+    btnCancelCrop.addEventListener("click", () => {
+        cropModal.style.display = 'none';
+        if (cropper) cropper.destroy();
+        profPicFile.value = ""; // Reset input
+    });
+}
+
+const btnConfirmCrop = document.getElementById("btn-confirm-crop");
+if (btnConfirmCrop) {
+    btnConfirmCrop.addEventListener("click", () => {
+        if (!cropper) return;
+        
+        cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
+            croppedProfileBlob = blob;
+            profPicPreview.src = URL.createObjectURL(blob);
+            
+            cropModal.style.display = 'none';
+            cropper.destroy();
+        }, 'image/jpeg', 0.85);
     });
 }
 
@@ -394,13 +483,15 @@ btnSaveProfile.addEventListener("click", async () => {
     try {
         const fileInput = document.getElementById("prof-pic-file");
         let avatarUrl = undefined;
-        // Optionally upload new avatar
-        if (fileInput.files.length > 0) {
-            const urls = await uploadImages([fileInput.files[0]]);
+        // Optionally upload new cropped avatar
+        if (croppedProfileBlob) {
+            const croppedFile = new File([croppedProfileBlob], "profile_cropped.jpg", { type: "image/jpeg" });
+            const urls = await uploadImages([croppedFile]);
             avatarUrl = urls[0];
         }
 
         const updates = {
+            username: document.getElementById("prof-username").value.trim().toLowerCase(),
             name: document.getElementById("prof-name").value,
             title: document.getElementById("prof-title").value,
             tagline: document.getElementById("prof-tagline").value,
@@ -424,6 +515,7 @@ btnSaveProfile.addEventListener("click", async () => {
             const avatarPreview = document.getElementById("prof-pic-preview");
             if (avatarPreview) avatarPreview.src = avatarUrl;
             fileInput.value = ""; // Clear file
+            croppedProfileBlob = null; // Clear the stored blob
         }
     } catch (err) {
         showToast(getErrorMessage(err.message), "error");

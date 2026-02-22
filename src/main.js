@@ -37,13 +37,18 @@ async function init() {
         // Hide all personalized UI overlays
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
-        container.innerHTML = `<div style="display:flex; height:100vh; align-items:center; justify-content:center; color:var(--text2); font-family:sans-serif; flex-direction:column; gap:15px;">
-            <h2 style="color:var(--text1); font-size:24px; font-weight:700; letter-spacing:0.05em; margin-bottom:10px;">${translateText('landing.title')}</h2>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <input type="text" id="username-search" placeholder="${translateText('landing.placeholder')}" style="padding:12px 16px; border-radius:8px; border:none; background:#1a1a1e; color:var(--text1); outline:none; font-family:inherit; min-width:250px;" />
-                <button id="btn-search-user" class="btn btn-primary" style="padding:12px 24px; font-weight:700;">${translateText('landing.btnView')}</button>
+        container.innerHTML = `
+        <div class="landing-wrapper">
+            <div class="landing-glass-card" style="padding: 40px 30px;">
+                <h1 class="landing-title">${translateText('landing.heroTitle')}</h1>
+                <p class="landing-desc">${translateText('landing.heroDesc')}</p>
+                
+                <div class="landing-input-group" style="flex-direction: column; margin-top: 20px; gap: 15px;">
+                    <input type="text" id="username-search" class="landing-input" placeholder="${translateText('landing.placeholder')}" autocomplete="off" style="text-align: center; font-size: 1.05rem;" />
+                    <button id="btn-search-user" class="landing-btn" style="width: 100%;">${translateText('landing.btnView')}</button>
+                    <a href="admin.html" class="landing-btn-outline landing-btn" style="width: 100%; margin-top: 0;">${translateText('landing.btnAdmin')}</a>
+                </div>
             </div>
-            <a href="admin.html" style="color:var(--accent); text-decoration:none; margin-top:20px; font-size:14px; font-weight:600;">${translateText('landing.btnAdmin')}</a>
         </div>`;
 
         // Logic for search button
@@ -55,6 +60,16 @@ async function init() {
         document.getElementById('username-search').addEventListener('keydown', e => {
             if (e.key === 'Enter') searchUser();
         });
+
+        // Entrance Animation
+        gsap.fromTo('.landing-glass-card', 
+            { y: 50, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 }
+        );
+        gsap.fromTo('.landing-glass-card > *', 
+            { y: 20, opacity: 0 }, 
+            { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out', delay: 0.4 }
+        );
 
         return;
     }
@@ -68,10 +83,26 @@ async function init() {
         // Hide all personalized UI overlays
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
-        container.innerHTML = `<div style="display:flex; height:100vh; align-items:center; justify-content:center; color:var(--text2); font-family:sans-serif; flex-direction:column; gap:15px;">
-            <p>${translateText('landing.notFound')} <strong>${username}</strong>.</p>
-            <a href="index.html" style="color:var(--accent); text-decoration:none; margin-top:10px; font-weight:600;">${translateText('landing.searchAgain')}</a>
+        container.innerHTML = `
+        <div class="landing-wrapper">
+            <div class="not-found-card" style="max-width: 360px; width: 100%; padding: 60px 30px; background: rgba(20, 20, 22, 0.98); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                <svg style="width: 140px; height: 140px; margin-bottom: 25px; color: white;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0; line-height: 1.4; letter-spacing: -0.3px;">
+                    ${translateText('landing.notFound')} <strong style="font-size: 1.35rem;">${username}</strong>
+                </h2>
+                <a href="index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
+                    ${translateText('landing.searchAgain')}
+                </a>
+            </div>
         </div>`;
+
+        gsap.fromTo('.not-found-card', 
+            { scale: 0.95, opacity: 0 }, 
+            { scale: 1, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 }
+        );
         return;
     }
 
@@ -81,7 +112,6 @@ async function init() {
         const nameEl = document.querySelector('.ui-overlay.top-left');
         const titleEl = document.querySelector('.ui-overlay.top-right');
         const footerNameEl = document.querySelector('.bottom-text-inner span:first-child');
-        const footerInternEl = document.querySelector('.bottom-text-inner span:last-child');
 
         if (nameEl && profile.name) {
             nameEl.textContent = profile.name.toUpperCase();
@@ -89,7 +119,6 @@ async function init() {
         }
         if (titleEl && profile.title) titleEl.textContent = profile.title.toUpperCase();
         if (footerNameEl && profile.name) footerNameEl.textContent = `© ${new Date().getFullYear()} ${profile.name.toUpperCase()}`;
-        if (footerInternEl && profile.tagline) footerInternEl.textContent = profile.tagline.toUpperCase();
     }
 
     images = projects.map(p => p.mainImage || (p.images && p.images[0]) || "");
@@ -97,6 +126,9 @@ async function init() {
     createCards();
     initDraggable();
     setupMatchMedia();
+
+    // Show UI overlays now that content is loaded
+    document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = '');
 
     // Play the full intro on every load to ensure WOW effect
     setTimeout(animateIntro, 100);
