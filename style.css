@@ -122,8 +122,8 @@ a.ui-overlay:hover {
   letter-spacing: 1px;
 }
 
-/* Subtle indicator for clickable profile name */
-.top-left:hover::after {
+/* Subtle indicator for clickable profile name on index only */
+#app .top-left:hover::after {
   content: ' →';
   font-weight: 400;
 }
