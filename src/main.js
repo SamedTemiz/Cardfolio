@@ -38,12 +38,12 @@ async function init() {
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
         container.innerHTML = `<div style="display:flex; height:100vh; align-items:center; justify-content:center; color:var(--text2); font-family:sans-serif; flex-direction:column; gap:15px;">
-            <h2 style="color:var(--text1); font-size:24px; font-weight:700; letter-spacing:0.05em; margin-bottom:10px;">Find a Cardfolio</h2>
+            <h2 style="color:var(--text1); font-size:24px; font-weight:700; letter-spacing:0.05em; margin-bottom:10px;">${translateText('landing.title')}</h2>
             <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <input type="text" id="username-search" placeholder="Enter username (e.g. timrashard)" style="padding:12px 16px; border-radius:8px; border:none; background:#1a1a1e; color:var(--text1); outline:none; font-family:inherit; min-width:250px;" />
-                <button id="btn-search-user" class="btn btn-primary" style="padding:12px 24px; font-weight:700;">View Cardfolio</button>
+                <input type="text" id="username-search" placeholder="${translateText('landing.placeholder')}" style="padding:12px 16px; border-radius:8px; border:none; background:#1a1a1e; color:var(--text1); outline:none; font-family:inherit; min-width:250px;" />
+                <button id="btn-search-user" class="btn btn-primary" style="padding:12px 24px; font-weight:700;">${translateText('landing.btnView')}</button>
             </div>
-            <a href="admin.html" style="color:var(--accent); text-decoration:none; margin-top:20px; font-size:14px; font-weight:600;">Go to Admin Panel -></a>
+            <a href="admin.html" style="color:var(--accent); text-decoration:none; margin-top:20px; font-size:14px; font-weight:600;">${translateText('landing.btnAdmin')}</a>
         </div>`;
 
         // Logic for search button
@@ -69,8 +69,8 @@ async function init() {
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
         container.innerHTML = `<div style="display:flex; height:100vh; align-items:center; justify-content:center; color:var(--text2); font-family:sans-serif; flex-direction:column; gap:15px;">
-            <p>No Cardfolio found for user <strong>${username}</strong>.</p>
-            <a href="index.html" style="color:var(--accent); text-decoration:none; margin-top:10px; font-weight:600;">&larr; Search again</a>
+            <p>${translateText('landing.notFound')} <strong>${username}</strong>.</p>
+            <a href="index.html" style="color:var(--accent); text-decoration:none; margin-top:10px; font-weight:600;">${translateText('landing.searchAgain')}</a>
         </div>`;
         return;
     }
