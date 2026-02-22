@@ -294,6 +294,7 @@ function checkBounds(card) {
         } else {
             const isMobile = window.innerWidth <= 768;
             targetScale = isMobile ? 0.55 : 1;
+            if (isMobile) targetY = -30;
         }
 
         gsap.to(card, {
@@ -510,7 +511,7 @@ function toStackMobile() {
     cards.forEach((card, i) => {
         gsap.to(card, {
             x: 0,
-            y: 0,
+            y: window.innerWidth <= 768 ? -30 : 0, // Slight upward adjust for bottom UI elements
             xPercent: -50,
             yPercent: -50,
             rotation: (Math.random() - 0.5) * 10,
