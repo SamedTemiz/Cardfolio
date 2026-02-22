@@ -457,11 +457,15 @@ a.ui-overlay:hover {
 
   /* Support for Mobile Grid Scroll */
   #container.grid-scroll-active {
-    position: relative !important;
-    height: auto !important;
-    min-height: 100vh;
-    overflow-y: visible !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     padding-bottom: 200px;
+    -webkit-overflow-scrolling: touch;
     touch-action: pan-y !important;
   }
 
@@ -469,13 +473,13 @@ a.ui-overlay:hover {
     touch-action: pan-y !important;
   }
 
-  /* When grid scroll is active, we must NOT fixed-position the body */
+  /* When grid scroll is active, prevent body scrolling */
   html.grid-scroll-body,
   body.grid-scroll-body {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    position: relative !important;
-    height: auto !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    height: 100dvh !important;
+    width: 100% !important;
   }
 }
 

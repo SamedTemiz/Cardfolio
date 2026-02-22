@@ -6,7 +6,7 @@ body {
     margin: 0;
     padding: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     background-color: #050505;
     overflow: hidden !important;
     /* Force no body scrolling */
@@ -26,10 +26,11 @@ body {
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     -webkit-overflow-scrolling: touch;
     position: absolute;
     top: 0;
+
     left: 0;
     z-index: 10;
     /* Hide scrollbar for cleaner look */
@@ -46,7 +47,7 @@ body {
     flex: 0 0 100vw;
     /* CRITICAL: Force slide to take exactly 1 screen width */
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,7 +63,7 @@ body {
     height: 100%;
     object-fit: contain;
     max-width: 100vw;
-    max-height: 100vh;
+    max-height: 100dvh;
     display: block;
     animation: fadeIn 0.8s ease-in-out;
 }
@@ -100,15 +101,15 @@ body {
 }
 
 .gallery-meta {
-    bottom: 20px !important;
-    left: 20px !important;
+    bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    left: max(20px, env(safe-area-inset-left)) !important;
     top: auto !important;
-    /* Force override top from existing class */
     color: white;
     pointer-events: none;
     background: transparent;
     padding: 0;
     width: auto;
+    z-index: 1001 !important;
 }
 
 .gallery-title {
