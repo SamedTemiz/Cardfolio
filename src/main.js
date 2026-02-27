@@ -179,7 +179,7 @@ async function init() {
 
         if (nameEl && profile.name) {
             nameEl.textContent = profile.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
-            nameEl.href = `profile.html?user=${username}`;
+            nameEl.href = `profile.html?user=${username}&uid=${profile.id}`;
         }
         if (titleEl && profile.title) titleEl.textContent = profile.title.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
         if (footerNameEl && profile.name) {
@@ -208,7 +208,8 @@ function createCards() {
 
         const url = proj.mainImage || (proj.images && proj.images[0]) || "";
         const card = document.createElement("a");
-        card.href = `project-detail.html?user=${username}&id=${proj.id}`;
+        const uid = urlParams.get('uid');
+        card.href = `project-detail.html?user=${username}&id=${proj.id}&uid=${uid || ''}`;
         card.className = "card";
         card.style.backgroundImage = `url(${url})`;
         // Pass translated text down for the CSS pseudo-element to pick up via `content: attr(data-hover-text)`

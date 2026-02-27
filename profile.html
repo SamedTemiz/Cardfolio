@@ -70,11 +70,17 @@
         async function initProfile() {
             const params = new URLSearchParams(window.location.search);
             const username = params.get('user');
+            const uid = params.get('uid');
 
             // Preserve tenant on back nav
             const backBtn = document.getElementById('prof-back-link');
-            if (backBtn && username) {
-                backBtn.href = `index.html?user=${username}`;
+            if (backBtn) {
+                const search = new URLSearchParams();
+                if (username) search.set('user', username);
+                if (uid) search.set('uid', uid);
+
+                const searchStr = search.toString();
+                if (searchStr) backBtn.href = `index.html?${searchStr}`;
             }
 
             // Fetch remote data

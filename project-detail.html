@@ -83,11 +83,17 @@
             const params = new URLSearchParams(window.location.search);
             const projectId = params.get('id');
             const username = params.get('user');
+            const uid = params.get('uid');
 
             // Set back link to preserve tenant
             const backBtn = document.querySelector('.gallery-nav-back');
-            if (backBtn && username) {
-                backBtn.href = `index.html?user=${username}`;
+            if (backBtn) {
+                const search = new URLSearchParams();
+                if (username) search.set('user', username);
+                if (uid) search.set('uid', uid);
+
+                const searchStr = search.toString();
+                if (searchStr) backBtn.href = `index.html?${searchStr}`;
             }
 
             // 2. Load Profile (for page title)

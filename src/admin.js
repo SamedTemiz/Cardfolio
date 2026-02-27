@@ -495,12 +495,15 @@ function updateUrlPreview() {
     // Base URL of the site (always points to root)
     let baseUrl = window.location.origin + "/";
 
+    const backBtn = document.getElementById('btn-back-to-site');
+    const uid = adminLayout?.dataset.uid || "";
+
     if (val) {
-        const uid = adminLayout?.dataset.uid || "";
         preview.textContent = `${baseUrl}?user=${val}&uid=${uid}`;
+        if (backBtn) backBtn.href = `index.html?user=${val}&uid=${uid}`;
     } else {
-        const uid = adminLayout?.dataset.uid || "";
         preview.textContent = `${baseUrl}?user=&uid=${uid}`;
+        if (backBtn) backBtn.href = `index.html?user=&uid=${uid}`;
     }
 }
 
