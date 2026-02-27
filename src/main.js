@@ -8,7 +8,6 @@ gsap.registerPlugin(Draggable);
 // Initialize Language Engine
 initI18n();
 
-console.log("GSAP Draggable Cardfolio Initialized");
 
 // --- Configuration: loaded dynamically via Supabase ---
 let projects = [];
@@ -31,30 +30,53 @@ async function init() {
 
     // Parse Username from URL
     const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('uid');
     const username = urlParams.get('user');
 
-    if (!username) {
+    if (!userId) {
         // Hide all personalized UI overlays
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
         container.innerHTML = `
         <div class="landing-wrapper">
-            <div class="landing-glass-card" style="padding: 40px 30px;">
+            <div class="landing-glass-card" style="padding: 40px 30px; max-width: 440px;">
                 <h1 class="landing-title">${translateText('landing.heroTitle')}</h1>
-                <p class="landing-desc">${translateText('landing.heroDesc')}</p>
+                <p class="landing-desc" style="margin-bottom: 25px;">${translateText('landing.heroDesc')}</p>
                 
-                <div class="landing-input-group" style="flex-direction: column; margin-top: 20px; gap: 15px;">
-                    <input type="text" id="username-search" class="landing-input" placeholder="${translateText('landing.placeholder')}" autocomplete="off" style="text-align: center; font-size: 1.05rem;" />
+                <div class="landing-input-group" style="flex-direction: column; margin-top: 0; gap: 15px;">
+                    <input type="text" id="username-search" class="landing-input" placeholder="${translateText('landing.placeholder')}" autocomplete="off" style="font-size: 0.95rem; padding: 15px 20px;" />
                     <button id="btn-search-user" class="landing-btn" style="width: 100%;">${translateText('landing.btnView')}</button>
-                    <a href="admin.html" class="landing-btn-outline landing-btn" style="width: 100%; margin-top: 0;">${translateText('landing.btnAdmin')}</a>
+                    <a href="admin.html" class="landing-btn-brand landing-btn" style="width: 100%; margin-top: 0;">${translateText('landing.btnAdmin')}</a>
                 </div>
             </div>
         </div>`;
 
         // Logic for search button
         const searchUser = () => {
-            const val = document.getElementById('username-search').value.trim();
-            if (val) window.location.href = `?user=${val}`;
+            let val = document.getElementById('username-search').value.trim();
+            if (!val) return;
+
+            // 1. If it's a full URL, redirect directly
+            if (val.includes('://')) {
+                window.location.href = val;
+                return;
+            }
+
+            // 2. If it contains uid param, use it
+            if (val.includes('uid=')) {
+                window.location.href = val.startsWith('?') ? val : `?${val}`;
+                return;
+            }
+
+            // 3. If it's just a username or anything else without UID, 
+            // the user requirement is that this shouldn't work.
+            // We can show a toast or a simple shake.
+            const input = document.getElementById('username-search');
+            input.style.borderColor = 'var(--danger-color)';
+            gsap.to(input, { x: 5, duration: 0.1, repeat: 5, yoyo: true });
+
+            // Optional: Alert the user they need a full link
+            // For now, we'll let them know via the placeholder and description.
         };
         document.getElementById('btn-search-user').addEventListener('click', searchUser);
         document.getElementById('username-search').addEventListener('keydown', e => {
@@ -62,12 +84,12 @@ async function init() {
         });
 
         // Entrance Animation
-        gsap.fromTo('.landing-glass-card', 
-            { y: 50, opacity: 0 }, 
+        gsap.fromTo('.landing-glass-card',
+            { y: 50, opacity: 0 },
             { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 }
         );
-        gsap.fromTo('.landing-glass-card > *', 
-            { y: 20, opacity: 0 }, 
+        gsap.fromTo('.landing-glass-card > *',
+            { y: 20, opacity: 0 },
             { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out', delay: 0.4 }
         );
 
@@ -77,9 +99,12 @@ async function init() {
     // Default to locked if in stack mode (no hasVisited or explicit stack)
     if (!isGridMode) lockScroll(); else unlockScroll();
 
-    projects = await getProjects(username);
+    // 1. Check if user exists first using ID disambiguation if available
+    const profile = await getProfile(username, userId);
+    // Real profiles from DB will have an 'id' (UUID)
+    const userExists = profile && profile.id;
 
-    if (projects.length === 0) {
+    if (!userExists) {
         // Hide all personalized UI overlays
         document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
 
@@ -88,10 +113,11 @@ async function init() {
             <div class="not-found-card" style="max-width: 360px; width: 100%; padding: 60px 30px; background: rgba(20, 20, 22, 0.98); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
                 <svg style="width: 140px; height: 140px; margin-bottom: 25px; color: white;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 <h2 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0; line-height: 1.4; letter-spacing: -0.3px;">
-                    ${translateText('landing.notFound')} <strong style="font-size: 1.35rem;">${username}</strong>
+                    ${translateText('landing.notFound')} <strong style="font-size: 1.35rem;">${username || 'USER'}</strong>
                 </h2>
                 <a href="index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
                     ${translateText('landing.searchAgain')}
@@ -99,26 +125,67 @@ async function init() {
             </div>
         </div>`;
 
-        gsap.fromTo('.not-found-card', 
-            { scale: 0.95, opacity: 0 }, 
+        gsap.fromTo('.not-found-card',
+            { scale: 0.95, opacity: 0 },
             { scale: 1, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 }
         );
         return;
     }
 
-    // Fetch and populate Profile data
-    const profile = await getProfile(username);
+    // 2. User exists, now fetch their projects exactly
+    projects = await getProjects(username, profile.id);
+
+    if (projects.length === 0) {
+        // Hide all personalized UI overlays
+        document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = 'none');
+
+        container.innerHTML = `
+        <div class="landing-wrapper">
+            <div class="not-found-card" style="max-width: 360px; width: 100%; padding: 60px 30px; background: rgba(20, 20, 22, 0.98); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                <div class="empty-icon-container" style="width: 100px; height: 100px; background: rgba(255,211,105,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                    <svg style="width: 50px; height: 50px; color: var(--accent-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" rx="1" style="opacity: 0.4"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1" style="opacity: 0.4"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1" style="opacity: 0.4"></rect>
+                        <path d="M3 14h7v7H3z" style="opacity: 0.1"></path>
+                        <line x1="6.5" y1="14.5" x2="6.5" y2="20.5" stroke-dasharray="2 2"></line>
+                        <line x1="3.5" y1="17.5" x2="9.5" y2="17.5" stroke-dasharray="2 2"></line>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0; line-height: 1.4; letter-spacing: -0.3px;">
+                    ${translateText('landing.noProjects')}
+                </h2>
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 12px; line-height: 1.5; max-width: 240px;">
+                    ${translateText('landing.noProjectsDesc')}
+                </p>
+                <a href="index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
+                    ${translateText('landing.searchAgain')}
+                </a>
+            </div>
+        </div>`;
+
+        gsap.fromTo('.not-found-card',
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 }
+        );
+        return;
+    }
+
+    // Use the profile data fetched earlier
     if (profile) {
         const nameEl = document.querySelector('.ui-overlay.top-left');
         const titleEl = document.querySelector('.ui-overlay.top-right');
         const footerNameEl = document.querySelector('.bottom-text-inner span:first-child');
 
         if (nameEl && profile.name) {
-            nameEl.textContent = profile.name.toUpperCase();
+            nameEl.textContent = profile.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
             nameEl.href = `profile.html?user=${username}`;
         }
-        if (titleEl && profile.title) titleEl.textContent = profile.title.toUpperCase();
-        if (footerNameEl && profile.name) footerNameEl.textContent = `© ${new Date().getFullYear()} ${profile.name.toUpperCase()}`;
+        if (titleEl && profile.title) titleEl.textContent = profile.title.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+        if (footerNameEl && profile.name) {
+            const upName = profile.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+            footerNameEl.textContent = `© ${new Date().getFullYear()} ${upName}`;
+        }
     }
 
     images = projects.map(p => p.mainImage || (p.images && p.images[0]) || "");

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel — Cardfolio</title>
+    <title>Cardfolio Studio</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="./admin.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
@@ -17,7 +17,7 @@
             <dotlottie-player src="/drag_anim.lottie" background="transparent" speed="1" loop autoplay
                 style="width: 80px; height: 80px; margin: 0 auto;"></dotlottie-player>
             <p style="color:var(--text2); margin-top:20px; font-weight:600; font-family:sans-serif;"
-                data-i18n="admin.loading">Loading Admin Panel...</p>
+                data-i18n="admin.loading">Loading Studio...</p>
         </div>
     </div>
 
@@ -69,7 +69,7 @@
         <aside class="admin-sidebar" id="admin-sidebar">
             <div class="admin-sidebar-logo">
                 <div class="logo-tag">Cardfolio</div>
-                <h1>ADMIN PANEL</h1>
+                <h1 data-i18n="admin.sidebarLogo">STUDIO</h1>
             </div>
 
             <nav class="admin-nav">
@@ -145,9 +145,27 @@
                 <div class="image-panel" id="image-panel">
                     <div class="image-panel-header">
                         <h3 id="image-panel-title" data-i18n="admin.imagePanelTitle">Images</h3>
-                        <button class="btn btn-ghost btn-sm" id="btn-close-panel"
-                            data-i18n="admin.btnClose">Close</button>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn btn-primary btn-sm" id="btn-save-project-details"
+                                data-i18n="admin.btnSave">Save</button>
+                            <button class="btn btn-ghost btn-sm" id="btn-close-panel"
+                                data-i18n="admin.btnClose">Close</button>
+                        </div>
                     </div>
+
+                    <!-- Project Metadata Editor -->
+                    <div class="form-row" style="margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label data-i18n="admin.projectName">Project Name</label>
+                            <input type="text" id="edit-project-name" />
+                        </div>
+                        <div class="form-group" style="flex: 2;">
+                            <label data-i18n="admin.projectDesc">Description</label>
+                            <input type="text" id="edit-project-desc" />
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
 
                     <!-- Add Image Row -->
                     <div class="image-add-row" style="display:flex; gap:10px; align-items:center;">
@@ -196,14 +214,15 @@
 
                     <div class="form-row">
                         <div class="form-group" style="flex:1;">
-                            <label data-i18n="admin.profUsername">Portfolio Username</label>
+                            <label data-i18n="admin.profUsername">Cardfolio Username</label>
                             <input type="text" id="prof-username" placeholder="e.g. johndoe" />
                         </div>
                         <div class="form-group" style="flex:2;">
-                            <label data-i18n="admin.profUrl">Your Portfolio Link</label>
+                            <label data-i18n="admin.profUrl">Your Cardfolio Link</label>
                             <div class="url-copy-box">
                                 <span id="prof-url-preview">https://cardfolio.app/?user=</span>
-                                <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-url" data-i18n="admin.btnCopyUrl">Copy Link</button>
+                                <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-url"
+                                    data-i18n="admin.btnCopyUrl">Copy Link</button>
                             </div>
                         </div>
                     </div>
@@ -258,10 +277,11 @@
     <!-- Custom Confirmation Modal -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Confirm</h3>
-            <p id="modal-message">Are you sure?</p>
+            <h3 id="modal-title" data-i18n="admin.confirmTitle">Confirm</h3>
+            <p id="modal-message" data-i18n="admin.confirmMessage">Are you sure?</p>
             <div class="modal-actions">
                 <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+                <button class="btn btn-warning" id="modal-discard" style="display:none;">Discard</button>
                 <button class="btn btn-primary" id="modal-confirm">Confirm</button>
             </div>
         </div>
@@ -272,9 +292,11 @@
 
     <!-- Crop Modal -->
     <div id="crop-modal" class="modal-overlay" style="display:none; z-index:9999;">
-        <div class="modal-box" style="max-width: 800px; width: 95%; max-height: 95vh; display: flex; flex-direction: column;">
+        <div class="modal-box"
+            style="max-width: 800px; width: 95%; max-height: 95vh; display: flex; flex-direction: column;">
             <h3 data-i18n="admin.cropTitle" style="margin-bottom: 15px;">Crop Profile Picture</h3>
-            <div style="flex: 1; min-height: 300px; max-height: 75vh; width: 100%; overflow: hidden; margin-bottom: 20px; background: #000; border-radius: 8px;">
+            <div
+                style="flex: 1; min-height: 300px; max-height: 75vh; width: 100%; overflow: hidden; margin-bottom: 20px; background: #000; border-radius: 8px;">
                 <img id="crop-image" src="" style="max-width: 100%; display: block;">
             </div>
             <div class="modal-actions" style="margin-top: auto;">

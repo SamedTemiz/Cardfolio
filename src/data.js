@@ -21,30 +21,33 @@ export function getDefaultProfile() {
 }
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
-export async function getProfile(username = null) {
-    // If username is provided, query by username (for public site)
-    if (username) {
+export async function getProfile(username = null, userId = null) {
+    // 1. If ID is provided, it's the most precise lookup
+    if (userId) {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('username', username)
-            .single();
+            .eq('id', userId)
+            .maybeSingle(); // Use maybeSingle to avoid errors if not found
 
-        if (error || !data) return getDefaultProfile();
-        return data;
+        if (!error && data) return data;
     }
 
-    // Otherwise, getting for Admin (authenticated user)
+    // 2. Fallback to username is now disabled for security/ambiguity reasons.
+    // Access must be via direct UID.
+
+    // 3. Otherwise, getting for Admin (authenticated user)
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return getDefaultProfile();
+    if (session) {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+        if (data) return data;
+    }
 
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-    return data || getDefaultProfile();
+    return getDefaultProfile();
 }
 
 export async function saveProfile(profileData) {
@@ -59,34 +62,31 @@ export async function saveProfile(profileData) {
     if (error) throw new Error(error.message);
 }
 
-// ─── Projects ─────────────────────────────────────────────────────────────────
-export async function getProjects(username = null) {
-    let userId;
+export async function isUsernameAvailable(username, userId) {
+    // Usernames are now allowed to be duplicates as access is via UUID.
+    return true;
+}
 
-    if (username) {
-        // Public lookup: get user_id from profiles first
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('username', username)
-            .single();
-        if (!profile) return [];
-        userId = profile.id;
+// ─── Projects ─────────────────────────────────────────────────────────────────
+export async function getProjects(username = null, userId = null) {
+    let targetUserId = userId;
+
+    if (targetUserId) {
+        // Use provided ID directly
     } else {
         // Auth lookup
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return [];
-        userId = session.user.id;
+        targetUserId = session.user.id;
     }
 
     const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', targetUserId)
         .order('order_index', { ascending: true }); // Admin dragging order
 
     if (error) {
-        console.error("Error fetching projects:", error);
         return [];
     }
 
@@ -121,7 +121,7 @@ export async function addProject(project) {
         }])
         .select();
 
-    if (error) console.error(error);
+    if (error) throw new Error(error.message);
     return data ? data[0] : null;
 }
 
@@ -147,7 +147,7 @@ export async function deleteProject(id) {
         .from('projects')
         .delete()
         .eq('id', id);
-    if (error) console.error(error);
+    if (error) throw new Error(error.message);
 }
 
 export async function reorderProjects(sourceIndex, targetIndex) {

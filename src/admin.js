@@ -1,7 +1,8 @@
 import {
     getProjects, addProject, deleteProject, reorderProjects,
     removeImageFromProject, setMainImage,
-    getProfile, saveProfile, uploadImages, addImagesToProject
+    getProfile, saveProfile, uploadImages, addImagesToProject,
+    isUsernameAvailable
 } from "./data.js";
 import { supabase } from './supabaseClient.js';
 import { checkSession } from "./auth.js";
@@ -9,6 +10,17 @@ import { initI18n, translateText as t, getErrorMessage } from "./i18n.js";
 
 // Initialize i18n
 initI18n();
+
+const adminLayout = document.getElementById("admin-layout");
+
+// Browser level protection for page refresh/close
+const handleBeforeUnload = (e) => {
+    if (hasProfileChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+    }
+};
+window.addEventListener("beforeunload", handleBeforeUnload);
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function showToast(msg, type = "success") {
@@ -20,7 +32,10 @@ function showToast(msg, type = "success") {
 }
 
 // ─── Custom Confirm ───────────────────────────────────────────────────────────
-function showConfirm(title, message) {
+/**
+ * options: { confirmText, cancelText }
+ */
+function showConfirm(title, message, options = {}) {
     return new Promise((resolve) => {
         const overlay = document.getElementById("modal-overlay");
         const titleEl = document.getElementById("modal-title");
@@ -30,6 +45,11 @@ function showConfirm(title, message) {
 
         titleEl.textContent = title;
         msgEl.textContent = message;
+
+        // Localize buttons with priority to overrides
+        btnConfirm.textContent = options.confirmText || t("admin.btnConfirm") || "Confirm";
+        btnCancel.textContent = options.cancelText || t("admin.btnCancel") || "Cancel";
+
         overlay.classList.add("active");
 
         const cleanup = (result) => {
@@ -45,13 +65,87 @@ function showConfirm(title, message) {
     });
 }
 
+// ─── Back to Site & Logout with Unsaved Check ─────────────────────────────────
+const backToSiteBtn = document.getElementById("btn-back-to-site");
+const logoutBtn = document.getElementById("btn-logout");
+
+async function checkUnsavedAndProceed(callback) {
+    if (hasProfileChanges) {
+        const result = await showConfirm(
+            t("admin.sectionProfile"),
+            t("admin.unsavedChanges"),
+            {
+                confirmText: t("admin.btnDiscard"), // "Kaydetmeden Ayrıl"
+                cancelText: t("admin.btnKeepEditing") // "Kal ve Düzenle"
+            }
+        );
+
+        if (!result) return; // User chose to stay
+
+        setProfileChanged(false); // User chose to discard
+    }
+
+    // Temporarily disable beforeunload so browser doesn't double-alert
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+    callback();
+}
+
+if (backToSiteBtn) {
+    backToSiteBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        checkUnsavedAndProceed(() => {
+            window.location.href = backToSiteBtn.href;
+        });
+    });
+}
+
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        checkUnsavedAndProceed(async () => {
+            // Unsaved check passed or confirmed discard
+            const confirmed = await showConfirm(t("admin.logout"), t("admin.logoutConfirm"));
+            if (confirmed) {
+                // Re-enable beforeunload if logout fails (though rare)
+                // Actually if we are logging out, we are leaving.
+                await supabase.auth.signOut();
+            } else {
+                // If logout itself is cancelled, put beforeunload back
+                window.addEventListener("beforeunload", handleBeforeUnload);
+            }
+        });
+    });
+}
+
+// ─── Input Change Listeners for Profile ───
+
 // ─── Navigation ───────────────────────────────────────────────────────────────
 const navItems = document.querySelectorAll(".admin-nav-item");
 const sections = document.querySelectorAll(".admin-section");
 
+// ─── Unsaved Changes Tracking ───────────────────────────────────────────────
+let hasProfileChanges = false;
+
+function setProfileChanged(val) {
+    hasProfileChanges = val;
+}
+
 navItems.forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
         const target = btn.dataset.section;
+        const currentActive = document.querySelector(".admin-nav-item.active");
+
+        // If clicking the current section, just ignore it!
+        if (currentActive && currentActive.dataset.section === target) {
+            return;
+        }
+
+        // If leaving profile with unsaved changes
+        if (currentActive && currentActive.dataset.section === "profile" && hasProfileChanges) {
+            const confirmed = await showConfirm(t("admin.sectionProfile"), t("admin.unsavedChanges"));
+            if (!confirmed) return;
+            setProfileChanged(false); // User chose to discard
+        }
+
         navItems.forEach(b => b.classList.remove("active"));
         sections.forEach(s => s.classList.remove("active"));
         btn.classList.add("active");
@@ -127,7 +221,7 @@ export async function renderProjects() {
                 <span>${p.description || ""}</span>
                 ${orderBadge}
             </div>
-            <span class="project-img-count">${p.images?.length || 0} img</span>
+            <span class="project-img-count">${p.images?.length || 0} ${t("admin.imgCount")}</span>
             
             <div class="project-actions">
                 <button class="btn btn-danger btn-sm btn-delete-proj" data-id="${p.id}" title="Delete project">✕</button>
@@ -151,7 +245,7 @@ export async function renderProjects() {
             btn.textContent = "...";
             if (id === selectedProjectId) closeImagePanel();
 
-            const confirmedFound = await showConfirm(t("admin.navProjects"), t("toast.projectDeleted") + "?");
+            const confirmedFound = await showConfirm(t("admin.navProjects"), t("admin.deleteConfirm"));
             if (!confirmedFound) {
                 btn.textContent = "✕";
                 return;
@@ -217,6 +311,17 @@ function openImagePanel(projectId) {
     const panel = document.getElementById("image-panel");
     panel.classList.add("visible");
     panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    // Populate metadata fields
+    (async () => {
+        const projects = await getProjects();
+        const proj = projects.find(p => p.id === projectId);
+        if (proj) {
+            document.getElementById("edit-project-name").value = proj.name || "";
+            document.getElementById("edit-project-desc").value = proj.description || "";
+        }
+    })();
+
     renderImageGrid();
     // Highlight selected row
     document.querySelectorAll(".project-row").forEach(r => {
@@ -232,18 +337,47 @@ function closeImagePanel() {
 
 document.getElementById("btn-close-panel").addEventListener("click", closeImagePanel);
 
+document.getElementById("btn-save-project-details").addEventListener("click", async () => {
+    if (!selectedProjectId) return;
+    const btn = document.getElementById("btn-save-project-details");
+    const name = document.getElementById("edit-project-name").value.trim();
+    const desc = document.getElementById("edit-project-desc").value.trim();
+
+    if (!name) return showToast(t("error.nameRequired") || "Name is required", "error");
+
+    btn.disabled = true;
+    btn.textContent = "...";
+
+    try {
+        const { updateProject } = await import("./data.js");
+        await updateProject(selectedProjectId, { name, description: desc });
+        showToast(t("toast.projectUpdated"));
+        await renderProjects();
+        const titleBase = t("admin.imagePanelTitle") || "Images";
+        const upName = name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+        document.getElementById("image-panel-title").textContent = `${titleBase.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US')} — ${upName}`;
+    } catch (e) {
+        showToast(e.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = t("admin.btnSave");
+    }
+});
+
 async function renderImageGrid() {
     const projects = await getProjects();
     const proj = projects.find(p => p.id === selectedProjectId);
     if (!proj) return;
 
-    document.getElementById("image-panel-title").textContent = `Images — ${proj.name}`;
+    const titleBase = t("admin.imagePanelTitle") || "Images";
+    const upName = proj.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+    document.getElementById("image-panel-title").textContent = `${titleBase.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US')} — ${upName}`;
 
     const grid = document.getElementById("image-grid");
     const images = proj.images || [];
 
     if (images.length === 0) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">No images yet. Upload one above!</div>`;
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">${t("admin.emptyImages")}</div>`;
         return;
     }
 
@@ -323,6 +457,11 @@ export async function loadProfile() {
     document.getElementById("prof-about").value = p.about || "";
     document.getElementById("prof-email").value = p.email || "";
 
+    // Store ID for URL generation
+    if (adminLayout && p.id) {
+        adminLayout.dataset.uid = p.id;
+    }
+
     const usernameInput = document.getElementById("prof-username");
     if (usernameInput) {
         usernameInput.value = p.username || "";
@@ -338,28 +477,30 @@ export async function loadProfile() {
     // Adjust Back To Site link
     const backBtn = document.getElementById('btn-back-to-site');
     if (backBtn && p.username) {
-        backBtn.href = `index.html?user=${p.username}`;
+        backBtn.href = `index.html?user=${p.username}&uid=${p.id}`;
     }
 
     currentSkills = [...(p.skills || [])];
     renderSkillTags();
+    setProfileChanged(false); // Reset on load
 }
 
 function updateUrlPreview() {
     const input = document.getElementById("prof-username");
     const preview = document.getElementById("prof-url-preview");
     if (!input || !preview) return;
-    
+
     let val = input.value.trim().toLowerCase();
-    
-    // Attempt to get the clean base URL of the site
-    let baseUrl = window.location.origin + window.location.pathname.replace('/admin.html', '/');
-    if (!baseUrl.endsWith('/')) baseUrl += '/';
-    
+
+    // Base URL of the site (always points to root)
+    let baseUrl = window.location.origin + "/";
+
     if (val) {
-        preview.textContent = `${baseUrl}?user=${val}`;
+        const uid = adminLayout?.dataset.uid || "";
+        preview.textContent = `${baseUrl}?user=${val}&uid=${uid}`;
     } else {
-        preview.textContent = `${baseUrl}?user=`;
+        const uid = adminLayout?.dataset.uid || "";
+        preview.textContent = `${baseUrl}?user=&uid=${uid}`;
     }
 }
 
@@ -382,7 +523,7 @@ if (btnCopyUrl) {
         if (preview && preview.textContent) {
             navigator.clipboard.writeText(preview.textContent).then(() => {
                 showToast(t("toast.urlCopied"));
-            }).catch(err => console.error("Could not copy:", err));
+            }).catch(() => { }); // Silent fail for copy if unsupported
         }
     });
 }
@@ -404,6 +545,7 @@ function renderSkillTags() {
         btn.addEventListener("click", () => {
             currentSkills.splice(parseInt(btn.dataset.idx), 1);
             renderSkillTags();
+            setProfileChanged(true);
         });
     });
 }
@@ -414,6 +556,7 @@ document.getElementById("btn-add-skill").addEventListener("click", () => {
     if (val && !currentSkills.includes(val)) {
         currentSkills.push(val);
         renderSkillTags();
+        setProfileChanged(true);
     }
     input.value = "";
 });
@@ -439,7 +582,7 @@ if (profPicFile && profPicPreview) {
             reader.onload = (event) => {
                 cropImage.src = event.target.result;
                 cropModal.style.display = 'flex';
-                
+
                 if (cropper) cropper.destroy();
                 cropper = new Cropper(cropImage, {
                     aspectRatio: 1,
@@ -464,11 +607,11 @@ const btnConfirmCrop = document.getElementById("btn-confirm-crop");
 if (btnConfirmCrop) {
     btnConfirmCrop.addEventListener("click", () => {
         if (!cropper) return;
-        
+
         cropper.getCroppedCanvas({ width: 500, height: 500 }).toBlob((blob) => {
             croppedProfileBlob = blob;
             profPicPreview.src = URL.createObjectURL(blob);
-            
+
             cropModal.style.display = 'none';
             cropper.destroy();
         }, 'image/jpeg', 0.85);
@@ -507,6 +650,7 @@ btnSaveProfile.addEventListener("click", async () => {
         try {
             await saveProfile(updates);
             showToast(t("toast.profileSaved"));
+            setProfileChanged(false); // Reset on success
         } catch (err) {
             showToast(getErrorMessage(err.message), "error");
         }
@@ -531,6 +675,19 @@ btnSaveProfile.addEventListener("click", async () => {
         `;
     }
 });
+
+// ─── Input Change Listeners for Profile ───
+["prof-name", "prof-title", "prof-tagline", "prof-about", "prof-email", "prof-username"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener("input", () => setProfileChanged(true));
+    }
+});
+
+// Avatar selection also counts as a change
+if (profPicFile) {
+    profPicFile.addEventListener("change", () => setProfileChanged(true));
+}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 checkSession();

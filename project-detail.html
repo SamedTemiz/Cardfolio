@@ -106,7 +106,7 @@
                 const yearEl = document.getElementById('gallery-year');
 
                 if (titleEl) {
-                    titleEl.textContent = project.name;
+                    titleEl.textContent = project.name.toLocaleUpperCase(currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
                     titleEl.removeAttribute('data-i18n'); // Don't let i18n override dynamic titles
                 }
                 if (yearEl) {
@@ -125,7 +125,7 @@
                 }
             } else {
                 // Not found
-                document.getElementById('gallery-title').textContent = "Project Not Found";
+                document.getElementById('gallery-title').textContent = translateText("project.notFound");
                 document.getElementById('gallery-year').textContent = "";
             }
         }

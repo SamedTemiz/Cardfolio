@@ -510,10 +510,14 @@ textarea {
 }
 
 .image-panel-header h3 {
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 15px;
 }
 
 .image-add-row {
@@ -1081,7 +1085,7 @@ textarea {
         padding: 8px;
         align-items: stretch;
     }
-    
+
     .url-copy-box span {
         padding: 4px 4px 8px 4px;
         text-align: center;

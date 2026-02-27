@@ -15,12 +15,14 @@ export const translations = {
         "card.viewProject": "VIEW",
 
         "landing.title": "Find a Cardfolio",
-        "landing.heroTitle": "Your Next-Gen Portfolio.",
-        "landing.heroDesc": "Turn your projects into a draggable, stackable, and visually stunning experience in seconds.",
-        "landing.placeholder": "Enter username",
+        "landing.heroTitle": "Cardfolio Portal",
+        "landing.heroDesc": "Paste a Cardfolio link to explore a creative world. Access requires a unique link for security.",
+        "landing.placeholder": "Paste Cardfolio Link here...",
         "landing.btnView": "View Cardfolio",
-        "landing.btnAdmin": "Create Cardfolio",
+        "landing.btnAdmin": "Create Your Cardfolio",
         "landing.notFound": "No Cardfolio found for user",
+        "landing.noProjects": "No projects yet",
+        "landing.noProjectsDesc": "This user hasn't added any projects to their Cardfolio yet.",
         "landing.searchAgain": "← Search again",
 
         "profile.tagline": "High School Student & Creative Developer",
@@ -34,11 +36,15 @@ export const translations = {
         "gallery.desc1": "2026 - LEAD DESIGNER",
 
         "admin.sidebarTitle": "CARDFOLIO STUDIO",
+        "admin.sidebarLogo": "STUDIO",
         "admin.navProjects": "Projects",
         "admin.navProfile": "Profile",
         "admin.backToSite": "← Back to Site",
         "admin.logout": "Log out",
         "admin.logoutConfirm": "Are you sure you want to log out?",
+        "admin.unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+        "admin.confirmTitle": "Confirm",
+        "admin.confirmMessage": "Are you sure?",
 
         "admin.authLogin": "Login",
         "admin.authRegister": "Register",
@@ -47,7 +53,7 @@ export const translations = {
         "admin.authNoAccount": "Don't have an account?",
         "admin.authAlreadyAccount": "Already have an account?",
         "admin.registerSuccess": "Registration successful! You are now logged in.",
-        "admin.loading": "Preparing Workspace...",
+        "admin.loading": "Preparing your Studio...",
 
         "admin.sectionProjects": "Projects",
         "admin.addProjectTitle": "Add New Project",
@@ -56,6 +62,9 @@ export const translations = {
         "admin.projectDesc": "Description",
         "admin.projectDescPlace": "e.g. 2026 — Lead Designer",
         "admin.btnAdd": "Add",
+        "admin.deleteConfirm": "Are you sure you want to delete this project?",
+        "admin.imgCount": "img",
+        "admin.emptyImages": "No images yet. Upload one above!",
         "admin.projectCount": "{n} projects",
         "admin.projectCountSingle": "1 project",
         "admin.emptyProjects": "No projects yet. Add one above!",
@@ -71,13 +80,17 @@ export const translations = {
 
         "admin.sectionProfile": "Profile",
         "admin.btnSave": "Save",
+        "admin.btnConfirm": "Yes, Continue",
+        "admin.btnCancel": "Cancel",
+        "admin.btnDiscard": "Discard & Leave",
+        "admin.btnKeepEditing": "Stay & Edit",
         "admin.profPic": "Profile Picture",
         "admin.profName": "Full Name",
         "admin.profTitle": "Title",
         "admin.profTagline": "Tagline",
         "admin.profAbout": "About Me",
-        "admin.profUsername": "Portfolio Username",
-        "admin.profUrl": "Your Portfolio Link",
+        "admin.profUsername": "Cardfolio Username",
+        "admin.profUrl": "Your Cardfolio Link",
         "admin.btnCopyUrl": "Copy Link",
         "admin.profEmail": "Email",
         "admin.profSkills": "Skills",
@@ -86,14 +99,18 @@ export const translations = {
 
         "toast.projectAdded": "Project added.",
         "toast.projectDeleted": "Project deleted.",
+        "toast.projectUpdated": "Project updated.",
         "toast.profileSaved": "Profile saved.",
         "toast.imagesUploaded": "Images uploaded.",
         "toast.urlCopied": "Link copied to clipboard!",
+        "toast.emailCopied": "Email copied to clipboard!",
+        "error.usernameTaken": "This username is already taken.",
         "toast.error": "Error: {e}",
         "error.invalidCredentials": "Invalid email or password.",
         "error.emailNotConfirmed": "Please confirm your email address.",
         "error.userExists": "An account with this email already exists.",
-        "error.weakPassword": "Password should be at least 6 characters."
+        "error.weakPassword": "Password should be at least 6 characters.",
+        "project.notFound": "Project Not Found"
     },
     tr: {
         "nav.portfolio": "CARDFOLIO",
@@ -110,12 +127,14 @@ export const translations = {
         "card.viewProject": "İNCELE",
 
         "landing.title": "Bir Cardfolio Bul",
-        "landing.heroTitle": "Yeni Nesil Portfolyo Deneyimi.",
-        "landing.heroDesc": "Projelerinizi saniyeler içinde büyüleyici bir dijital deneyime dönüştürün.",
-        "landing.placeholder": "Kullanıcı adı girin",
+        "landing.heroTitle": "Cardfolio Portalı",
+        "landing.heroDesc": "Bir Cardfolio dünyasını keşfetmek için bağlantıyı yapıştırın. Güvenlik için tam bağlantı gereklidir.",
+        "landing.placeholder": "Cardfolio Bağlantısını buraya yapıştırın...",
         "landing.btnView": "Görüntüle",
         "landing.btnAdmin": "Cardfolio Oluştur",
         "landing.notFound": "Bu kullanıcı için Cardfolio bulunamadı:",
+        "landing.noProjects": "Henüz proje yok",
+        "landing.noProjectsDesc": "Bu kullanıcı henüz Cardfolio'suna herhangi bir proje eklememiş.",
         "landing.searchAgain": "← Tekrar ara",
 
         "profile.tagline": "Lise Öğrencisi ve Etkileşim Geliştiricisi",
@@ -128,12 +147,16 @@ export const translations = {
         "gallery.title1": "SİBER PUNK NEON",
         "gallery.desc1": "2026 - BAŞ TASARIMCI",
 
-        "admin.sidebarTitle": "CARDFOLIO STÜDYO",
+        "admin.sidebarTitle": "CARDFOLIO STÜDYOSU",
+        "admin.sidebarLogo": "STÜDYO",
         "admin.navProjects": "Projeler",
         "admin.navProfile": "Profil",
         "admin.backToSite": "← Siteye Dön",
         "admin.logout": "Çıkış Yap",
         "admin.logoutConfirm": "Çıkış yapmak istediğinize emin misiniz?",
+        "admin.unsavedChanges": "Kaydedilmemiş değişiklikleriniz var. Ayrılmak istediğinize emin misiniz?",
+        "admin.confirmTitle": "Onay",
+        "admin.confirmMessage": "Emin misiniz?",
 
         "admin.authLogin": "Giriş Yap",
         "admin.authRegister": "Kayıt Ol",
@@ -142,7 +165,7 @@ export const translations = {
         "admin.authNoAccount": "Hesabınız yok mu?",
         "admin.authAlreadyAccount": "Zaten hesabınız var mı?",
         "admin.registerSuccess": "Kayıt başarılı! Giriş yapıldı.",
-        "admin.loading": "Çalışma Alanı Hazırlanıyor...",
+        "admin.loading": "Stüdyo Hazırlanıyor...",
 
         "admin.sectionProjects": "Projeler",
         "admin.addProjectTitle": "Yeni Proje Ekle",
@@ -151,6 +174,9 @@ export const translations = {
         "admin.projectDesc": "Açıklama",
         "admin.projectDescPlace": "örn. 2026 — Baş Tasarımcı",
         "admin.btnAdd": "Ekle",
+        "admin.deleteConfirm": "Bu projeyi silmek istediğinize emin misiniz?",
+        "admin.imgCount": "görsel",
+        "admin.emptyImages": "Henüz görsel yok. Yukarıdan bir tane yükle!",
         "admin.projectCount": "{n} proje",
         "admin.projectCountSingle": "1 proje",
         "admin.emptyProjects": "Henüz proje yok. Yukarıdan bir tane ekle!",
@@ -166,13 +192,17 @@ export const translations = {
 
         "admin.sectionProfile": "Profil",
         "admin.btnSave": "Kaydet",
+        "admin.btnConfirm": "Evet, Devam Et",
+        "admin.btnCancel": "Vazgeç",
+        "admin.btnDiscard": "Kaydetmeden Ayrıl",
+        "admin.btnKeepEditing": "Kal ve Düzenle",
         "admin.profPic": "Profil Resmi",
         "admin.profName": "Tam Ad",
         "admin.profTitle": "Başlık",
         "admin.profTagline": "Slogan",
         "admin.profAbout": "Hakkımda",
-        "admin.profUsername": "Portfolyo Kullanıcı Adı",
-        "admin.profUrl": "Portfolyo Bağlantın",
+        "admin.profUsername": "Cardfolio Kullanıcı Adı",
+        "admin.profUrl": "Cardfolio Bağlantın",
         "admin.btnCopyUrl": "Bağlantıyı Kopyala",
         "admin.profEmail": "E-posta",
         "admin.profSkills": "Yetenekler",
@@ -181,14 +211,18 @@ export const translations = {
 
         "toast.projectAdded": "Proje eklendi.",
         "toast.projectDeleted": "Proje silindi.",
+        "toast.projectUpdated": "Proje güncellendi.",
         "toast.profileSaved": "Profil kaydedildi.",
         "toast.imagesUploaded": "Görseller yüklendi.",
         "toast.urlCopied": "Bağlantı panoya kopyalandı!",
+        "toast.emailCopied": "Email adresi kopyalandı!",
+        "error.usernameTaken": "Bu kullanıcı adı zaten alınmış.",
         "toast.error": "Hata: {e}",
         "error.invalidCredentials": "Geçersiz e-posta veya şifre.",
         "error.emailNotConfirmed": "Lütfen e-posta adresinizi doğrulayın.",
         "error.userExists": "Bu e-posta adresiyle zaten bir hesap mevcut.",
-        "error.weakPassword": "Şifre en az 6 karakter olmalıdır."
+        "error.weakPassword": "Şifre en az 6 karakter olmalıdır.",
+        "project.notFound": "Proje Bulunamadı"
     }
 };
 
@@ -205,6 +239,9 @@ export function initI18n() {
     } else {
         currentLanguage = 'en';
     }
+
+    // Set document language for correct CSS text-transform behavior (e.g. Turkish İ/I)
+    document.documentElement.lang = currentLanguage;
 
     // Assign to window for global access if needed in inline scripts
     window.currentLanguage = currentLanguage;

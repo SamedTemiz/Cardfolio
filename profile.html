@@ -35,11 +35,27 @@
 
             <div class="section contact">
                 <h2 data-i18n="profile.contactTitle">CONTACT</h2>
-                <a id="prof-email-link" href="mailto:contact@example.com" class="contact-btn"
-                    data-i18n="profile.getInTouch">GET IN TOUCH</a>
+                <div class="contact-links">
+                    <a id="prof-email-link" href="mailto:contact@example.com" class="contact-btn"
+                        data-i18n="profile.getInTouch">GET IN TOUCH</a>
+
+                    <div class="email-copy-wrapper" id="email-copy-btn">
+                        <span class="email-text" id="prof-email-text">email@example.com</span>
+                        <div class="copy-icon-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
 
     <!-- Language Engine -->
     <script type="module">
@@ -81,13 +97,37 @@
 
             if (nameEl && p.name) {
                 nameEl.textContent = p.name;
-                document.title = `${p.name} - Profile`;
+                document.title = `${p.name} — ${translateText("admin.navProfile")}`;
             }
             if (taglineEl && p.tagline) taglineEl.textContent = p.tagline;
             if (aboutEl && p.about) aboutEl.textContent = p.about;
 
+            const emailText = document.getElementById("prof-email-text");
+            const copyBtn = document.getElementById("email-copy-btn");
+            const toast = document.getElementById("toast");
+
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
             if (emailLink && p.email) {
                 emailLink.href = `mailto:${p.email}`;
+            }
+
+            if (emailText && p.email) {
+                emailText.textContent = p.email;
+            }
+
+            if (copyBtn && p.email) {
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(p.email).then(() => {
+                        import("./src/i18n.js").then(module => {
+                            showToast(module.translateText("toast.emailCopied"));
+                        });
+                    });
+                });
             }
 
             if (skillsEl && p.skills && p.skills.length > 0) {
