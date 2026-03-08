@@ -66,6 +66,7 @@
     <!-- Profile Data Loader -->
     <script type="module">
         import { getProfile } from "./src/data.js";
+        import { translateText } from "./src/i18n.js";
 
         async function initProfile() {
             const params = new URLSearchParams(window.location.search);
@@ -84,7 +85,7 @@
             }
 
             // Fetch remote data
-            const p = await getProfile(username);
+            const p = await getProfile(username, uid);
 
             const picEl = document.getElementById("prof-pic-display");
             const nameEl = document.getElementById("prof-name");
