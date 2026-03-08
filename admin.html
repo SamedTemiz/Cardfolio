@@ -34,21 +34,114 @@
                     <label data-i18n="admin.authEmail">EMAIL</label>
                     <input type="email" id="auth-email" required placeholder="user@example.com" class="auth-input" />
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label data-i18n="admin.authPassword">PASSWORD</label>
-                    <input type="password" id="auth-password" required placeholder="••••••••••••••"
-                        class="auth-input" />
+                    <div class="password-wrapper">
+                        <input type="password" id="auth-password" required placeholder="••••••••••••••"
+                            class="auth-input" />
+                        <button type="button" class="btn-eye" aria-label="Toggle Password Visibility">
+                            <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="eye-off-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                </path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <a href="#" id="btn-forgot-password" data-i18n="admin.authForgotPassword"
+                        style="font-size: 11px; font-weight: 500; color: var(--text2); margin-top: 8px; text-decoration: none; align-self: flex-end; transition: color 0.2s;">Forgot
+                        Password?</a>
                 </div>
-                <div id="auth-error" class="auth-error-msg" style="display:none;"></div>
+                <div id="auth-error" class="auth-error-msg"
+                    style="display:none; color: var(--danger); font-size: 13px; margin-top: -10px; margin-bottom: 20px;">
+                </div>
                 <button type="submit" class="btn-auth-submit" id="btn-auth-submit"
                     data-i18n="admin.authLogin">Login</button>
             </form>
 
-            <div class="auth-footer">
+            <div class="auth-footer" id="auth-footer-container">
                 <span id="auth-switch-text" data-i18n="admin.authNoAccount">Don't have an account?</span>
                 <button type="button" class="btn-auth-switch" id="btn-auth-switch"
                     data-i18n="admin.authRegister">Register</button>
             </div>
+
+            <!-- RESET PASSWORD REQUEST FORM (Hidden by default) -->
+            <form id="auth-reset-form" style="display:none;">
+                <div class="form-group">
+                    <label data-i18n="admin.authEmail">EMAIL</label>
+                    <input type="email" id="auth-reset-email" required placeholder="user@example.com"
+                        class="auth-input" />
+                </div>
+                <div id="auth-reset-error" class="auth-error-msg"
+                    style="display:none; color: var(--danger); font-size: 13px; margin-top: -10px; margin-bottom: 20px;">
+                </div>
+                <button type="submit" class="btn-auth-submit" id="btn-auth-reset-submit"
+                    data-i18n="admin.authResetPasswordBtn">Send Reset Link</button>
+                <div style="text-align: center; margin-top: 24px;">
+                    <button type="button" class="btn-auth-switch" id="btn-back-to-login"
+                        data-i18n="admin.authBackToLogin">Back to Login</button>
+                </div>
+            </form>
+
+            <!-- SET NEW PASSWORD FORM (Hidden by default) -->
+            <form id="auth-new-password-form" style="display:none;">
+                <div class="form-group">
+                    <label data-i18n="admin.authPassword">NEW PASSWORD</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="auth-new-password" required placeholder="••••••••••••••"
+                            class="auth-input" />
+                        <button type="button" class="btn-eye" aria-label="Toggle Password Visibility">
+                            <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="eye-off-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                </path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="admin.authConfirmPassword">CONFIRM PASSWORD</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="auth-confirm-password" required placeholder="••••••••••••••"
+                            class="auth-input" />
+                        <button type="button" class="btn-eye" aria-label="Toggle Password Visibility">
+                            <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="eye-off-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                </path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="auth-new-password-error" class="auth-error-msg"
+                    style="display:none; color: var(--danger); font-size: 13px; margin-top: -10px; margin-bottom: 20px;">
+                </div>
+                <button type="submit" class="btn-auth-submit" id="btn-auth-new-password-submit"
+                    data-i18n="admin.authNewPasswordBtn">Update Password</button>
+            </form>
         </div>
     </div>
 
@@ -92,8 +185,16 @@
             </nav>
 
             <div class="admin-sidebar-footer">
-                <a href="index.html" class="back-link" id="btn-back-to-site" data-i18n="admin.backToSite">&larr; Back to
-                    Site</a>
+                <a href="index.html" class="btn btn-primary" id="btn-back-to-site" data-i18n="admin.backToSite"
+                    style="width: 100%; justify-content: center; gap: 8px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    View Cardfolio
+                </a>
                 <button class="btn btn-ghost btn-sm" id="btn-logout" data-i18n="admin.logout"
                     style="width: 100%; margin-top: 10px; color: var(--danger-color); text-align: left;">
                     Log out

@@ -48,8 +48,17 @@ export const translations = {
 
         "admin.authLogin": "Login",
         "admin.authRegister": "Register",
+        "admin.authForgotPassword": "Forgot Password?",
+        "admin.authResetPasswordTitle": "Reset Password",
+        "admin.authResetPasswordBtn": "Send Reset Link",
+        "admin.authBackToLogin": "Back to Login",
+        "admin.authNewPasswordTitle": "New Password",
+        "admin.authNewPasswordBtn": "Update Password",
+        "toast.passwordResetEmailSent": "Password reset email sent. Check your inbox.",
+        "toast.passwordUpdated": "Password updated successfully.",
         "admin.authEmail": "EMAIL",
         "admin.authPassword": "PASSWORD",
+        "admin.authConfirmPassword": "CONFIRM PASSWORD",
         "admin.authNoAccount": "Don't have an account?",
         "admin.authAlreadyAccount": "Already have an account?",
         "admin.registerSuccess": "Registration successful! You are now logged in.",
@@ -110,6 +119,7 @@ export const translations = {
         "error.emailNotConfirmed": "Please confirm your email address.",
         "error.userExists": "An account with this email already exists.",
         "error.weakPassword": "Password should be at least 6 characters.",
+        "error.passwordsDoNotMatch": "Passwords do not match.",
         "project.notFound": "Project Not Found"
     },
     tr: {
@@ -151,7 +161,7 @@ export const translations = {
         "admin.sidebarLogo": "STÜDYO",
         "admin.navProjects": "Projeler",
         "admin.navProfile": "Profil",
-        "admin.backToSite": "← Siteye Dön",
+        "admin.backToSite": "Cardfolio'yu Görüntüle",
         "admin.logout": "Çıkış Yap",
         "admin.logoutConfirm": "Çıkış yapmak istediğinize emin misiniz?",
         "admin.unsavedChanges": "Kaydedilmemiş değişiklikleriniz var. Ayrılmak istediğinize emin misiniz?",
@@ -160,8 +170,17 @@ export const translations = {
 
         "admin.authLogin": "Giriş Yap",
         "admin.authRegister": "Kayıt Ol",
+        "admin.authForgotPassword": "Şifremi Unuttum?",
+        "admin.authResetPasswordTitle": "Şifreyi Sıfırla",
+        "admin.authResetPasswordBtn": "Sıfırlama Bağlantısı Gönder",
+        "admin.authBackToLogin": "Girişe Dön",
+        "admin.authNewPasswordTitle": "Yeni Şifre",
+        "admin.authNewPasswordBtn": "Şifreyi Güncelle",
+        "toast.passwordResetEmailSent": "Şifre sıfırlama e-postası gönderildi. Gelen kutunu kontrol et.",
+        "toast.passwordUpdated": "Şifren başarıyla güncellendi.",
         "admin.authEmail": "E-POSTA",
         "admin.authPassword": "ŞİFRE",
+        "admin.authConfirmPassword": "ŞİFREYİ ONAYLA",
         "admin.authNoAccount": "Hesabınız yok mu?",
         "admin.authAlreadyAccount": "Zaten hesabınız var mı?",
         "admin.registerSuccess": "Kayıt başarılı! Giriş yapıldı.",
@@ -222,6 +241,7 @@ export const translations = {
         "error.emailNotConfirmed": "Lütfen e-posta adresinizi doğrulayın.",
         "error.userExists": "Bu e-posta adresiyle zaten bir hesap mevcut.",
         "error.weakPassword": "Şifre en az 6 karakter olmalıdır.",
+        "error.passwordsDoNotMatch": "Şifreler eşleşmiyor.",
         "project.notFound": "Proje Bulunamadı"
     }
 };

@@ -666,7 +666,7 @@ textarea {
     transform: translateY(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
-    z-index: 9999;
+    z-index: 20000;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -793,6 +793,35 @@ textarea {
 
 .auth-input:focus {
     border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-wrapper .auth-input {
+    padding-right: 40px !important;
+}
+
+.btn-eye {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #a0aab5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.btn-eye:hover {
+    color: var(--text);
 }
 
 .btn-auth-submit {
