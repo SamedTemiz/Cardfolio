@@ -76,7 +76,7 @@
 
     <!-- Gallery Data Loader -->
     <script type="module">
-        import { getProjects, getProfile } from "./src/data.js";
+        import { getProject, getProfile, getOptimizedImageUrl } from "./src/data.js";
 
         async function initGallery() {
             // 1. Parse ID and User from URL
@@ -85,54 +85,66 @@
             const username = params.get('user');
             const uid = params.get('uid');
 
+            if (!uid && !username) {
+                console.error("Missing UID or Username");
+                return;
+            }
+
             // Set back link to preserve tenant
             const backBtn = document.querySelector('.gallery-nav-back');
             if (backBtn) {
                 const search = new URLSearchParams();
                 if (username) search.set('user', username);
                 if (uid) search.set('uid', uid);
-
                 const searchStr = search.toString();
                 if (searchStr) backBtn.href = `index.html?${searchStr}`;
             }
 
-            // 2. Load Profile (for page title)
-            const profile = await getProfile(username);
-            if (profile && profile.name) {
-                document.title = `Gallery | ${profile.name}`;
-            }
+            // 2. Load Profile and Project in parallel
+            try {
+                const [profile, project] = await Promise.all([
+                    getProfile(username, uid),
+                    getProject(uid, projectId)
+                ]);
 
-            // 3. Load Project Data
-            const projects = await getProjects(username);
-            const project = projects.find(p => p.id === projectId) || projects[0];
-
-            if (project) {
-                // 4. Update Title and Desc
-                const titleEl = document.getElementById('gallery-title');
-                const yearEl = document.getElementById('gallery-year');
-
-                if (titleEl) {
-                    titleEl.textContent = project.name.toLocaleUpperCase(currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
-                    titleEl.removeAttribute('data-i18n'); // Don't let i18n override dynamic titles
-                }
-                if (yearEl) {
-                    yearEl.textContent = project.description;
-                    yearEl.removeAttribute('data-i18n');
+                if (profile && profile.name) {
+                    document.title = `Gallery | ${profile.name}`;
                 }
 
-                // 5. Inject Images
-                const galleryContainer = document.getElementById('galleryContainer');
-                if (galleryContainer && project.images) {
-                    galleryContainer.innerHTML = project.images.map(url => `
-                        <div class="gallery-slide">
-                            <img src="${url}" alt="${project.name}">
-                        </div>
-                    `).join('');
+                if (project) {
+                    // 3. Update Title and Desc
+                    const titleEl = document.getElementById('gallery-title');
+                    const yearEl = document.getElementById('gallery-year');
+
+                    if (titleEl) {
+                        titleEl.textContent = project.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+                        titleEl.removeAttribute('data-i18n');
+                    }
+                    if (yearEl) {
+                        yearEl.textContent = project.description;
+                        yearEl.removeAttribute('data-i18n');
+                    }
+
+                    // 4. Inject Images with Optimization and Lazy Loading
+                    const galleryContainer = document.getElementById('galleryContainer');
+                    if (galleryContainer && project.images) {
+                        galleryContainer.innerHTML = project.images.map(url => {
+                            // High quality for detail view, but still optimized WebP
+                            const optimizedUrl = getOptimizedImageUrl(url, { width: 1600, quality: 85, format: 'webp' });
+                            return `
+                                <div class="gallery-slide">
+                                    <img src="${optimizedUrl}" alt="${project.name}" loading="lazy">
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                } else {
+                    // Not found
+                    const titleEl = document.getElementById('gallery-title');
+                    if (titleEl) titleEl.textContent = "Project Not Found";
                 }
-            } else {
-                // Not found
-                document.getElementById('gallery-title').textContent = translateText("project.notFound");
-                document.getElementById('gallery-year').textContent = "";
+            } catch (error) {
+                console.error("Gallery initialization failed:", error);
             }
         }
 

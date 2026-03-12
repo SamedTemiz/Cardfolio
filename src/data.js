@@ -68,12 +68,13 @@ export async function isUsernameAvailable(username, userId) {
 }
 
 // ─── Projects ─────────────────────────────────────────────────────────────────
+/**
+ * Fetches projects for a given user.
+ */
 export async function getProjects(username = null, userId = null) {
     let targetUserId = userId;
 
-    if (targetUserId) {
-        // Use provided ID directly
-    } else {
+    if (!targetUserId) {
         // Auth lookup
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return [];
@@ -84,13 +85,10 @@ export async function getProjects(username = null, userId = null) {
         .from('projects')
         .select('*')
         .eq('user_id', targetUserId)
-        .order('order_index', { ascending: true }); // Admin dragging order
+        .order('order_index', { ascending: true });
 
-    if (error) {
-        return [];
-    }
+    if (error) return [];
 
-    // Map DB schema to frontend expected schema
     return data.map(dbProj => ({
         id: dbProj.id,
         name: dbProj.name,
@@ -99,6 +97,58 @@ export async function getProjects(username = null, userId = null) {
         images: dbProj.images || [],
         order_index: dbProj.order_index
     }));
+}
+
+/**
+ * Fetches a single project by ID for a specific user.
+ */
+export async function getProject(userId, projectId) {
+    if (!userId || !projectId) return null;
+
+    const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('id', projectId)
+        .maybeSingle();
+
+    if (error || !data) return null;
+
+    return {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        mainImage: data.main_image,
+        images: data.images || [],
+        order_index: data.order_index
+    };
+}
+
+/**
+ * Generates an optimized image URL using Supabase image transformation.
+ * Note: Requires Supabase Pro or custom transformation setup. 
+ * Falls back to original URL if transformation parameters are not supported by the bucket.
+ */
+export function getOptimizedImageUrl(url, options = { width: 800, quality: 80, format: 'webp' }) {
+    if (!url || typeof url !== 'string' || !url.includes('supabase.co')) return url;
+
+    try {
+        const urlObj = new URL(url);
+        // Supabase Image Transformation format: /storage/v1/render/image/public/bucket/path?width=...
+        if (urlObj.pathname.includes('/storage/v1/object/public/')) {
+            const transformedPath = urlObj.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+            const params = new URLSearchParams();
+            if (options.width) params.set('width', options.width);
+            if (options.quality) params.set('quality', options.quality);
+            if (options.format) params.set('format', options.format);
+            if (options.resize) params.set('resize', options.resize);
+
+            return `${urlObj.origin}${transformedPath}?${params.toString()}`;
+        }
+    } catch (e) {
+        console.warn("Optimized URL generation failed:", e);
+    }
+    return url;
 }
 
 export async function addProject(project) {
