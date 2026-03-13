@@ -1,0 +1,10 @@
+# Static files should take precedence
+/admin.html /admin.html 200
+/profile.html /profile.html 200
+/project-detail.html /project-detail.html 200
+
+# Hybrid paths
+/*/*/profile  /profile.html  200
+/*/*/project/*  /project-detail.html  200
+/*/*  /index.html  200
+/*  /index.html  200

@@ -28,10 +28,26 @@ let mm = gsap.matchMedia();
 async function init() {
     setupInteractions();
 
-    // Parse Username from URL
+    // Parse URL for Routing
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('uid');
-    const username = urlParams.get('user');
+    const pathParts = window.location.pathname.split('/').filter(p => p);
+
+    // 1. Guard: If this is a specific HTML file request, let the standard handler take care of it.
+    const knownPages = ['profile.html', 'project-detail.html', 'admin.html', 'profile', 'project'];
+    if (pathParts.some(part => knownPages.includes(part))) {
+        // Skip main.js logic if we are on a sub-page
+        return;
+    }
+
+    let userId = urlParams.get('uid');
+    let username = urlParams.get('user');
+
+    // Path-based routing: /shortId/username
+    // Skip if the first part is index.html
+    if (!userId && pathParts.length >= 1 && pathParts[0] !== 'index.html') {
+        userId = pathParts[0]; // Short ID
+        if (pathParts[1]) username = pathParts[1];
+    }
 
     if (!userId) {
         // Hide all personalized UI overlays
@@ -46,7 +62,7 @@ async function init() {
                 <div class="landing-input-group" style="flex-direction: column; margin-top: 0; gap: 15px;">
                     <input type="text" id="username-search" class="landing-input" placeholder="${translateText('landing.placeholder')}" autocomplete="off" style="font-size: 0.95rem; padding: 15px 20px;" />
                     <button id="btn-search-user" class="landing-btn" style="width: 100%;">${translateText('landing.btnView')}</button>
-                    <a href="admin.html" class="landing-btn-brand landing-btn" style="width: 100%; margin-top: 0;">${translateText('landing.btnAdmin')}</a>
+                    <a href="/admin.html" class="landing-btn-brand landing-btn" style="width: 100%; margin-top: 0;">${translateText('landing.btnAdmin')}</a>
                 </div>
             </div>
         </div>`;
@@ -102,6 +118,10 @@ async function init() {
             const profile = profileResponse;
             projects = projectsResponse;
 
+            // Short ID and Username for link generation
+            const shortId = profile.id.substring(0, 6);
+            const userSlug = profile.username || 'user';
+
             // Update UI with profile data
             const nameEl = document.querySelector('.ui-overlay.top-left');
             const titleEl = document.querySelector('.ui-overlay.top-right');
@@ -109,7 +129,8 @@ async function init() {
 
             if (nameEl && profile.name) {
                 nameEl.textContent = profile.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
-                nameEl.href = `profile.html?user=${username}&uid=${profile.id}`;
+                // Use hybrid link for profile: /id/username/profile
+                nameEl.href = `/${shortId}/${userSlug}/profile`;
             }
             if (titleEl && profile.title) titleEl.textContent = profile.title.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
             if (footerNameEl && profile.name) {
@@ -154,7 +175,7 @@ function showNotFoundUI(username) {
             <h2 style="font-size: 1.25rem; font-weight: 700; color: white; margin: 0; line-height: 1.4; letter-spacing: -0.3px;">
                 ${translateText('landing.notFound')} <strong style="font-size: 1.35rem;">${username || 'USER'}</strong>
             </h2>
-            <a href="index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
+            <a href="/index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
                 ${translateText('landing.searchAgain')}
             </a>
         </div>
@@ -183,7 +204,7 @@ function showNoProjectsUI() {
             <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 12px; line-height: 1.5; max-width: 240px;">
                 ${translateText('landing.noProjectsDesc')}
             </p>
-            <a href="index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
+            <a href="/index.html" class="landing-btn-outline landing-btn" style="margin-top: 30px; font-size: 0.95rem; border-radius: 8px; padding: 12px 24px; min-width: 200px; font-weight: 600;">
                 ${translateText('landing.searchAgain')}
             </a>
         </div>
@@ -218,14 +239,20 @@ function createCards() {
         });
     }, { rootMargin: '200px' });
 
-    projects.forEach((proj, index) => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const username = urlParams.get('user');
-        const uid = urlParams.get('uid');
+    // Use the values determined during init()
+    const urlParams = new URLSearchParams(window.location.search);
+    const pathParts = window.location.pathname.split('/').filter(p => p);
+    
+    // Fallback recalculation if global scope isn't ideal, but more robust:
+    const currentUid = urlParams.get('uid') || (pathParts[0] !== 'index.html' ? pathParts[0] : '');
+    const currentUser = urlParams.get('user') || (pathParts[0] !== 'index.html' ? pathParts[1] : '') || 'user';
+    const shortId = currentUid.length > 20 ? currentUid.substring(0, 6) : currentUid;
 
+    projects.forEach((proj, index) => {
         const url = proj.mainImage || (proj.images && proj.images[0]) || "";
         const card = document.createElement("a");
-        card.href = `project-detail.html?user=${username}&id=${proj.id}&uid=${uid || ''}`;
+        // Hybrid link: /shortId/user/project/projectId
+        card.href = `/${shortId}/${currentUser}/project/${proj.id}`;
         card.className = "card";
 
         // Store original URL and let Observer load it

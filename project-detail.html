@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery | Cardfolio</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="project-detail.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/project-detail.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 </head>
@@ -15,7 +15,7 @@
 <body class="gallery-body">
 
     <!-- Top Navigation -->
-    <a href="index.html" class="ui-overlay gallery-nav-back" data-i18n="nav.back">&larr; BACK TO CARDFOLIO</a>
+    <a href="/" class="ui-overlay gallery-nav-back" data-i18n="nav.back">&larr; BACK TO CARDFOLIO</a>
 
     <!-- Minimal Metadata Overlay -->
     <div class="ui-overlay gallery-meta">
@@ -70,22 +70,39 @@
 
     <!-- Language Engine -->
     <script type="module">
-        import { initI18n } from "./src/i18n.js";
+        import { initI18n } from "/src/i18n.js";
         initI18n();
     </script>
 
     <!-- Gallery Data Loader -->
     <script type="module">
-        import { getProject, getProfile, getOptimizedImageUrl } from "./src/data.js";
+        import { getProject, getProfile, getOptimizedImageUrl } from "/src/data.js";
 
         async function initGallery() {
-            // 1. Parse ID and User from URL
+            // 1. Parse ID and User from URL or Path
             const params = new URLSearchParams(window.location.search);
-            const projectId = params.get('id');
-            const username = params.get('user');
-            const uid = params.get('uid');
+            const pathParts = window.location.pathname.split('/').filter(p => p);
+            
+            // Expected Format: /shortId/username/project/projectId
+            // OR Fallback Legacy: /project-detail.html/shortId/username/projectId
+            let shortId = params.get('uid');
+            let username = params.get('user');
+            let projectId = params.get('id');
 
-            if (!uid && !username) {
+            if (!shortId && pathParts.length >= 4) {
+                // Check if the path started with a known file name and skip it
+                const startIdx = pathParts[0].includes('.html') ? 1 : 0;
+                shortId = pathParts[startIdx];
+                username = pathParts[startIdx + 1];
+                // skip 'project' literal
+                projectId = pathParts[startIdx + 3];
+            } else if (!shortId && pathParts.length >= 3 && pathParts[0].includes('project-detail')) {
+                shortId = pathParts[1];
+                username = pathParts[2];
+                projectId = pathParts[3] || params.get('id');
+            }
+
+            if (!shortId && !username) {
                 console.error("Missing UID or Username");
                 return;
             }
@@ -93,48 +110,51 @@
             // Set back link to preserve tenant
             const backBtn = document.querySelector('.gallery-nav-back');
             if (backBtn) {
-                const search = new URLSearchParams();
-                if (username) search.set('user', username);
-                if (uid) search.set('uid', uid);
-                const searchStr = search.toString();
-                if (searchStr) backBtn.href = `index.html?${searchStr}`;
+                // Use hybrid back link: /shortId/username
+                backBtn.href = `/${shortId}/${username || 'user'}`;
             }
 
             // 2. Load Profile and Project in parallel
             try {
                 const [profile, project] = await Promise.all([
-                    getProfile(username, uid),
-                    getProject(uid, projectId)
+                    getProfile(username, shortId),
+                    getProject(null, projectId) 
                 ]);
+                
+                let finalProject = project;
+                if (!finalProject && profile) {
+                    const { getProject: getProjWithUid } = await import("/src/data.js");
+                    finalProject = await getProjWithUid(profile.id, projectId);
+                }
 
                 if (profile && profile.name) {
                     document.title = `Gallery | ${profile.name}`;
                 }
 
-                if (project) {
+                if (finalProject) {
                     // 3. Update Title and Desc
                     const titleEl = document.getElementById('gallery-title');
                     const yearEl = document.getElementById('gallery-year');
 
                     if (titleEl) {
-                        titleEl.textContent = project.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+                        titleEl.textContent = finalProject.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
                         titleEl.removeAttribute('data-i18n');
                     }
                     if (yearEl) {
-                        yearEl.textContent = project.description;
+                        yearEl.textContent = finalProject.description;
                         yearEl.removeAttribute('data-i18n');
                     }
 
                     // 4. Inject Images with Optimization and Lazy Loading
                     const galleryContainer = document.getElementById('galleryContainer');
-                    if (galleryContainer && project.images) {
-                        galleryContainer.innerHTML = project.images.map(url => {
+                    if (galleryContainer && finalProject.images) {
+                        galleryContainer.innerHTML = finalProject.images.map(url => {
                             // High quality for detail view, but still optimized WebP
                             const optimizedUrl = getOptimizedImageUrl(url, { width: 1600, quality: 85, format: 'webp' });
                             return `
                                 <div class="gallery-slide">
                                     <img src="${optimizedUrl}" 
-                                         alt="${project.name}" 
+                                         alt="${finalProject.name}" 
                                          loading="lazy"
                                          onerror="if (this.src !== '${url}') this.src = '${url}';">
                                 </div>

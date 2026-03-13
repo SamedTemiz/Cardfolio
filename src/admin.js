@@ -476,8 +476,10 @@ export async function loadProfile() {
 
     // Adjust Back To Site link
     const backBtn = document.getElementById('btn-back-to-site');
-    if (backBtn && p.username) {
-        backBtn.href = `index.html?user=${p.username}&uid=${p.id}`;
+    if (backBtn && p.id) {
+        const shortId = p.id.substring(0, 6);
+        const userSlug = p.username || 'user';
+        backBtn.href = `/${shortId}/${userSlug}`;
     }
 
     currentSkills = [...(p.skills || [])];
@@ -490,20 +492,21 @@ function updateUrlPreview() {
     const preview = document.getElementById("prof-url-preview");
     if (!input || !preview) return;
 
-    let val = input.value.trim().toLowerCase();
+    let val = input.value.trim().toLowerCase() || "user";
 
-    // Base URL of the site (always points to root)
-    let baseUrl = window.location.origin + "/";
+    // Base URL of the site
+    let baseUrl = window.location.origin;
 
     const backBtn = document.getElementById('btn-back-to-site');
     const uid = adminLayout?.dataset.uid || "";
+    const shortId = uid ? uid.substring(0, 6) : "......";
 
-    if (val) {
-        preview.textContent = `${baseUrl}?user=${val}&uid=${uid}`;
-        if (backBtn) backBtn.href = `index.html?user=${val}&uid=${uid}`;
-    } else {
-        preview.textContent = `${baseUrl}?user=&uid=${uid}`;
-        if (backBtn) backBtn.href = `index.html?user=&uid=${uid}`;
+    const hybridPath = `/${shortId}/${val}`;
+    const fullUrl = baseUrl + hybridPath;
+
+    preview.textContent = fullUrl;
+    if (backBtn && uid) {
+        backBtn.href = hybridPath;
     }
 }
 

@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | Cardfolio</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body class="profile-body">
-    <a href="index.html" class="ui-overlay top-left" id="prof-back-link" data-i18n="nav.back">&larr; BACK TO
+    <a href="/" class="ui-overlay top-left" id="prof-back-link" data-i18n="nav.back">&larr; BACK TO
         CARDFOLIO</a>
 
     <div class="profile-container">
@@ -59,29 +59,38 @@
 
     <!-- Language Engine -->
     <script type="module">
-        import { initI18n } from "./src/i18n.js";
+        import { initI18n } from "/src/i18n.js";
         initI18n();
     </script>
 
     <!-- Profile Data Loader -->
     <script type="module">
-        import { getProfile } from "./src/data.js";
-        import { translateText } from "./src/i18n.js";
+        import { getProfile } from "/src/data.js";
+        import { translateText } from "/src/i18n.js";
 
         async function initProfile() {
             const params = new URLSearchParams(window.location.search);
-            const username = params.get('user');
-            const uid = params.get('uid');
+            const pathParts = window.location.pathname.split('/').filter(p => p);
+            
+            // Format: /id/username/profile or ?uid=ID&user=username
+            let uid = params.get('uid');
+            let username = params.get('user');
+
+            if (!uid && pathParts.length >= 2 && !pathParts[0].includes('.html')) {
+                uid = pathParts[0];
+                username = pathParts[1];
+            }
 
             // Preserve tenant on back nav
             const backBtn = document.getElementById('prof-back-link');
-            if (backBtn) {
-                const search = new URLSearchParams();
-                if (username) search.set('user', username);
-                if (uid) search.set('uid', uid);
+            if (backBtn && uid) {
+                // Return to hybrid main: /id/username
+                backBtn.href = `/${uid}/${username || 'user'}`;
+            }
 
-                const searchStr = search.toString();
-                if (searchStr) backBtn.href = `index.html?${searchStr}`;
+            if (!uid && !username) {
+                console.error("Missing UID or Username");
+                return;
             }
 
             // Fetch remote data

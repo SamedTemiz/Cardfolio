@@ -22,19 +22,34 @@ export function getDefaultProfile() {
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 export async function getProfile(username = null, userId = null) {
-    // 1. If ID is provided, it's the most precise lookup
-    if (userId) {
+    // 1. If Full ID is provided, it's the most precise lookup
+    if (userId && userId.length > 10) {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .maybeSingle(); // Use maybeSingle to avoid errors if not found
+            .maybeSingle();
 
         if (!error && data) return data;
     }
 
-    // 2. Fallback to username is now disabled for security/ambiguity reasons.
-    // Access must be via direct UID.
+    // 2. Lookup by Short ID (prefix of UUID)
+    // We expect userId to be the first 6 characters of the UUID
+    if (userId && userId.length <= 10) {
+        // We use the 'ilike' or similar, but since UID is uuid type, we might need a raw query or a stored column.
+        // For simplicity and speed without DB changes, we can fetch by prefix if we had a column.
+        // ALTERNATIVE: Use a RPC or search.
+        // BETTER: Since we are in control, we can search projects for this user_id prefix if needed,
+        // but the standard way in Supabase is to have a slug or short_id column.
+        // For now, let's use a filter that works on the id column:
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .filter('id', 'like', `${userId}%`)
+            .maybeSingle();
+
+        if (!error && data) return data;
+    }
 
     // 3. Otherwise, getting for Admin (authenticated user)
     const { data: { session } } = await supabase.auth.getSession();
@@ -103,14 +118,14 @@ export async function getProjects(username = null, userId = null) {
  * Fetches a single project by ID for a specific user.
  */
 export async function getProject(userId, projectId) {
-    if (!userId || !projectId) return null;
+    if (!projectId) return null;
 
-    const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('id', projectId)
-        .maybeSingle();
+    let query = supabase.from('projects').select('*').eq('id', projectId);
+    if (userId) {
+        query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error || !data) return null;
 
@@ -275,4 +290,22 @@ export async function removeImageFromProject(projectId, url) {
 
 export async function setMainImage(projectId, url) {
     await updateProject(projectId, { mainImage: url });
+}
+
+/**
+ * Helper to get the 6-character short ID from a full UUID
+ */
+export function getShortId(uid) {
+    if (!uid) return "";
+    return uid.substring(0, 6);
+}
+
+/**
+ * Generates a hybrid shareable URL
+ */
+export function getHybridUrl(profile) {
+    if (!profile || !profile.id) return window.location.origin + "/";
+    const shortId = getShortId(profile.id);
+    const username = profile.username || "user";
+    return `${window.location.origin}/${shortId}/${username}`;
 }
