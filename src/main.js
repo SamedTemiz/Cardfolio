@@ -242,7 +242,7 @@ function createCards() {
     // Use the values determined during init()
     const urlParams = new URLSearchParams(window.location.search);
     const pathParts = window.location.pathname.split('/').filter(p => p);
-    
+
     // Fallback recalculation if global scope isn't ideal, but more robust:
     const currentUid = urlParams.get('uid') || (pathParts[0] !== 'index.html' ? pathParts[0] : '');
     const currentUser = urlParams.get('user') || (pathParts[0] !== 'index.html' ? pathParts[1] : '') || 'user';

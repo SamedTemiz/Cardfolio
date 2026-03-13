@@ -82,7 +82,7 @@
             // 1. Parse ID and User from URL or Path
             const params = new URLSearchParams(window.location.search);
             const pathParts = window.location.pathname.split('/').filter(p => p);
-            
+
             // Expected Format: /shortId/username/project/projectId
             // OR Fallback Legacy: /project-detail.html/shortId/username/projectId
             let shortId = params.get('uid');
@@ -118,9 +118,9 @@
             try {
                 const [profile, project] = await Promise.all([
                     getProfile(username, shortId),
-                    getProject(null, projectId) 
+                    getProject(null, projectId)
                 ]);
-                
+
                 let finalProject = project;
                 if (!finalProject && profile) {
                     const { getProject: getProjWithUid } = await import("/src/data.js");
@@ -155,7 +155,7 @@
                                 <div class="gallery-slide">
                                     <img src="${optimizedUrl}" 
                                          alt="${finalProject.name}" 
-                                         loading="lazy"
+                                         loading="eager"
                                          onerror="if (this.src !== '${url}') this.src = '${url}';">
                                 </div>
                             `;
