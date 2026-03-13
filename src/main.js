@@ -199,10 +199,19 @@ function createCards() {
                 const card = entry.target;
                 const rawUrl = card.dataset.rawUrl;
                 if (rawUrl) {
-                    // Use optimized card thumbnail (width around 600px for retina support)
                     const optimizedUrl = getOptimizedImageUrl(rawUrl, { width: 600, quality: 75, format: 'webp' });
-                    card.style.backgroundImage = `url(${optimizedUrl})`;
-                    card.removeAttribute('data-raw-url');
+
+                    // Fail-safe: Try loading optimized, if fails, fallback to raw
+                    const img = new Image();
+                    img.onload = () => {
+                        card.style.backgroundImage = `url("${optimizedUrl}")`;
+                        card.removeAttribute('data-raw-url');
+                    };
+                    img.onerror = () => {
+                        card.style.backgroundImage = `url("${rawUrl}")`;
+                        card.removeAttribute('data-raw-url');
+                    };
+                    img.src = optimizedUrl;
                 }
                 observer.unobserve(card);
             }

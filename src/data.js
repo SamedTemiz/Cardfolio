@@ -126,27 +126,31 @@ export async function getProject(userId, projectId) {
 
 /**
  * Generates an optimized image URL using Supabase image transformation.
- * Note: Requires Supabase Pro or custom transformation setup. 
- * Falls back to original URL if transformation parameters are not supported by the bucket.
+ * Returns the original URL if transformation is not possible or if it's not a Supabase storage URL.
  */
 export function getOptimizedImageUrl(url, options = { width: 800, quality: 80, format: 'webp' }) {
     if (!url || typeof url !== 'string' || !url.includes('supabase.co')) return url;
 
+    // Check if image transformation is disabled via global variable or if we want to be safe
+    if (window.disableImageOptimization) return url;
+
     try {
         const urlObj = new URL(url);
-        // Supabase Image Transformation format: /storage/v1/render/image/public/bucket/path?width=...
+        // Supabase Image Transformation format requires /storage/v1/render/image/public/
+        // Only attempt for known public storage objects
         if (urlObj.pathname.includes('/storage/v1/object/public/')) {
             const transformedPath = urlObj.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+
             const params = new URLSearchParams();
             if (options.width) params.set('width', options.width);
             if (options.quality) params.set('quality', options.quality);
             if (options.format) params.set('format', options.format);
-            if (options.resize) params.set('resize', options.resize);
+            if (options.resize) params.set('resize', options.resize || 'cover');
 
             return `${urlObj.origin}${transformedPath}?${params.toString()}`;
         }
     } catch (e) {
-        console.warn("Optimized URL generation failed:", e);
+        console.warn("Optimized URL generation failed, falling back to original:", e);
     }
     return url;
 }

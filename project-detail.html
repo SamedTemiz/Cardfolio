@@ -133,7 +133,10 @@
                             const optimizedUrl = getOptimizedImageUrl(url, { width: 1600, quality: 85, format: 'webp' });
                             return `
                                 <div class="gallery-slide">
-                                    <img src="${optimizedUrl}" alt="${project.name}" loading="lazy">
+                                    <img src="${optimizedUrl}" 
+                                         alt="${project.name}" 
+                                         loading="lazy"
+                                         onerror="if (this.src !== '${url}') this.src = '${url}';">
                                 </div>
                             `;
                         }).join('');
