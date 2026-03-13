@@ -1,5 +1,18 @@
 import { supabase } from './supabaseClient.js';
 
+const STORAGE_BASE = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/portfolio-images/`;
+
+/**
+ * Helper to ensure a URL is absolute. If it's a relative path, prepends Supabase storage base.
+ */
+export function ensureAbsoluteUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    // Clean leading slash if any
+    const path = url.startsWith('/') ? url.substring(1) : url;
+    return STORAGE_BASE + path;
+}
+
 // ─── Default Seed Data ────────────────────────────────────────────────────────
 export function getDefaultProjects() {
     return [
@@ -22,44 +35,56 @@ export function getDefaultProfile() {
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 export async function getProfile(username = null, userId = null) {
-    // 1. If Full ID is provided, it's the most precise lookup
-    if (userId && userId.length > 10) {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .maybeSingle();
-
-        if (!error && data) return data;
+    // 1. If Full ID is provided (Precise UUID lookup)
+    if (userId && userId.length > 20) {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .maybeSingle();
+            if (!error && data) {
+                if (data.avatar_url) data.avatar_url = ensureAbsoluteUrl(data.avatar_url);
+                return data;
+            }
+        } catch (e) {
+            console.warn("Full ID lookup failed:", e);
+        }
     }
 
-    // 2. Lookup by Short ID (prefix of UUID)
-    // We expect userId to be the first 6 characters of the UUID
-    if (userId && userId.length <= 10) {
-        // We use the 'ilike' or similar, but since UID is uuid type, we might need a raw query or a stored column.
-        // For simplicity and speed without DB changes, we can fetch by prefix if we had a column.
-        // ALTERNATIVE: Use a RPC or search.
-        // BETTER: Since we are in control, we can search projects for this user_id prefix if needed,
-        // but the standard way in Supabase is to have a slug or short_id column.
-        // For now, let's use a filter that works on the id column:
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .filter('id', 'like', `${userId}%`)
-            .maybeSingle();
-
-        if (!error && data) return data;
+    // 2. If Username is provided
+    if (username && username !== 'user') {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('username', username)
+                .maybeSingle();
+            if (!error && data) {
+                if (data.avatar_url) data.avatar_url = ensureAbsoluteUrl(data.avatar_url);
+                return data;
+            }
+        } catch (e) {
+            console.warn("Username lookup failed:", e);
+        }
     }
 
-    // 3. Otherwise, getting for Admin (authenticated user)
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-        if (data) return data;
+    // 3. Last resort: getting for Admin (authenticated user)
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
+            if (!error && data) {
+                if (data.avatar_url) data.avatar_url = ensureAbsoluteUrl(data.avatar_url);
+                return data;
+            }
+        }
+    } catch (e) {
+        console.warn("Session lookup failed:", e);
     }
 
     return getDefaultProfile();
@@ -108,8 +133,8 @@ export async function getProjects(username = null, userId = null) {
         id: dbProj.id,
         name: dbProj.name,
         description: dbProj.description,
-        mainImage: dbProj.main_image,
-        images: dbProj.images || [],
+        mainImage: ensureAbsoluteUrl(dbProj.main_image),
+        images: (dbProj.images || []).map(img => ensureAbsoluteUrl(img)),
         order_index: dbProj.order_index
     }));
 }
@@ -133,8 +158,8 @@ export async function getProject(userId, projectId) {
         id: data.id,
         name: data.name,
         description: data.description,
-        mainImage: data.main_image,
-        images: data.images || [],
+        mainImage: ensureAbsoluteUrl(data.main_image),
+        images: (data.images || []).map(img => ensureAbsoluteUrl(img)),
         order_index: data.order_index
     };
 }

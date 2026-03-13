@@ -71,7 +71,7 @@
         async function initProfile() {
             const params = new URLSearchParams(window.location.search);
             const pathParts = window.location.pathname.split('/').filter(p => p);
-            
+
             // Format: /id/username/profile or ?uid=ID&user=username
             let uid = params.get('uid');
             let username = params.get('user');
@@ -139,7 +139,7 @@
             if (copyBtn && p.email) {
                 copyBtn.addEventListener('click', () => {
                     navigator.clipboard.writeText(p.email).then(() => {
-                        import("./src/i18n.js").then(module => {
+                        import("/src/i18n.js").then(module => {
                             showToast(module.translateText("toast.emailCopied"));
                         });
                     });
