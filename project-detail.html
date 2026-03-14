@@ -22,8 +22,11 @@
         </div>
     </div>
 
-    <!-- Top Navigation -->
-    <a href="index.html" class="ui-overlay gallery-nav-back" data-i18n="nav.back">&larr; BACK TO CARDFOLIO</a>
+    <!-- Top Navigation: wrapper prevents overlap on narrow viewports -->
+    <nav class="ui-overlay gallery-top-nav" aria-label="Gallery navigation">
+        <a href="index.html" class="gallery-nav-back" data-i18n="nav.back">&larr; BACK TO CARDFOLIO</a>
+        <a id="nextProjectBtn" href="#" class="gallery-nav-next-project" data-i18n="gallery.nextProject" style="display: none;">Next project &rarr;</a>
+    </nav>
 
     <!-- Minimal Metadata Overlay -->
     <div class="ui-overlay gallery-meta">
@@ -58,18 +61,6 @@
 
     <script>
         const container = document.getElementById('galleryContainer');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        // Scroll one full viewport width at a time
-        nextBtn.addEventListener('click', () => {
-            container.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
-        });
-
-        prevBtn.addEventListener('click', () => {
-            container.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
-        });
-
         const galleryHint = document.getElementById('galleryDragHint');
         function dismissHint() {
             if (!galleryHint) return;
@@ -92,7 +83,7 @@
 
     <!-- Gallery Data Loader -->
     <script type="module">
-        import { getProject, getProfile, getOptimizedImageUrl } from "./src/data.js";
+        import { getProject, getProfile, getProjects, getOptimizedImageUrl } from "./src/data.js";
         import { translateText } from "./src/i18n.js";
 
         function hideProgressOverlay() {
@@ -193,6 +184,91 @@
                 await Promise.all(loadPromises);
                 sessionStorage.setItem("returnFromDetail", "1");
                 hideProgressOverlay();
+
+                const allProjects = await getProjects(null, profile.id);
+                const currentIndex = allProjects.findIndex(p => p.id === project.id);
+                const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
+                const nextProject = currentIndex >= 0 && currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
+                const nextProjectBtn = document.getElementById('nextProjectBtn');
+                if (nextProjectBtn) {
+                    if (nextProject) {
+                        nextProjectBtn.href = `project-detail.html?user=${encodeURIComponent(username || '')}&uid=${encodeURIComponent(uid || '')}&id=${encodeURIComponent(nextProject.id)}`;
+                        nextProjectBtn.style.display = '';
+                    } else {
+                        nextProjectBtn.style.display = 'none';
+                    }
+                }
+
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const threshold = 20;
+                function isFirstImage() {
+                    return container.scrollLeft <= threshold;
+                }
+                function isLastImage() {
+                    const maxScroll = container.scrollWidth - container.clientWidth;
+                    return maxScroll <= threshold || container.scrollLeft >= maxScroll - threshold;
+                }
+                function updatePrevNextVisibility() {
+                    if (prevBtn) {
+                        prevBtn.style.display = isFirstImage() && !prevProject ? 'none' : '';
+                    }
+                    if (nextBtn) {
+                        nextBtn.style.display = isLastImage() && !nextProject ? 'none' : '';
+                    }
+                }
+
+                prevBtn.addEventListener('click', () => {
+                    if (isFirstImage() && prevProject) {
+                        const url = `project-detail.html?user=${encodeURIComponent(username || '')}&uid=${encodeURIComponent(uid || '')}&id=${encodeURIComponent(prevProject.id)}#last`;
+                        location.assign(url);
+                        return;
+                    }
+                    container.scrollBy({ left: -window.innerWidth, behavior: 'smooth' });
+                });
+                nextBtn.addEventListener('click', () => {
+                    if (isLastImage() && nextProject) {
+                        const url = `project-detail.html?user=${encodeURIComponent(username || '')}&uid=${encodeURIComponent(uid || '')}&id=${encodeURIComponent(nextProject.id)}`;
+                        location.assign(url);
+                        return;
+                    }
+                    container.scrollBy({ left: window.innerWidth, behavior: 'smooth' });
+                });
+                container.addEventListener('scroll', () => {
+                    setTimeout(updatePrevNextVisibility, 50);
+                }, { passive: true });
+
+                /* Mobile: same prev/next project logic on swipe at boundaries (no arrow buttons on mobile) */
+                const SWIPE_THRESHOLD_PX = 60;
+                let touchStartX = 0;
+                let touchStartScrollLeft = 0;
+                container.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 0) return;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartScrollLeft = container.scrollLeft;
+                }, { passive: true });
+                container.addEventListener('touchend', (e) => {
+                    if (e.changedTouches.length === 0) return;
+                    const deltaX = e.changedTouches[0].clientX - touchStartX;
+                    const maxScroll = container.scrollWidth - container.clientWidth;
+                    const atStart = container.scrollLeft <= 20;
+                    const atEnd = maxScroll <= 20 || container.scrollLeft >= maxScroll - 20;
+                    if (atStart && prevProject && deltaX > SWIPE_THRESHOLD_PX) {
+                        const url = `project-detail.html?user=${encodeURIComponent(username || '')}&uid=${encodeURIComponent(uid || '')}&id=${encodeURIComponent(prevProject.id)}#last`;
+                        location.assign(url);
+                        return;
+                    }
+                    if (atEnd && nextProject && deltaX < -SWIPE_THRESHOLD_PX) {
+                        const url = `project-detail.html?user=${encodeURIComponent(username || '')}&uid=${encodeURIComponent(uid || '')}&id=${encodeURIComponent(nextProject.id)}`;
+                        location.assign(url);
+                    }
+                }, { passive: true });
+
+                if (location.hash === '#last') {
+                    container.scrollLeft = container.scrollWidth - container.clientWidth;
+                    history.replaceState(null, '', location.pathname + location.search);
+                }
+                updatePrevNextVisibility();
             } catch (error) {
                 console.error("Gallery initialization failed:", error);
                 const search = new URLSearchParams();
