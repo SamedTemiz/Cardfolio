@@ -10,10 +10,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Optional: add preconnect to your Supabase project URL for faster image loads, e.g. <link rel="preconnect" href="https://YOUR_PROJECT.supabase.co" crossorigin> -->
 </head>
 
 <body>
     <div id="app">
+        <!-- Progress overlay: shown while portfolio data and card images load (portfolio path only) -->
+        <div id="indexProgressOverlay" class="index-progress-overlay" aria-hidden="false" style="display: none;">
+            <div class="index-progress-content">
+                <div class="index-progress-spinner"></div>
+                <p class="index-progress-text" data-i18n="index.loading">Cardfolio yükleniyor</p>
+            </div>
+        </div>
+
         <!-- Background Text -->
         <div class="bg-text-container">
             <h1 class="bg-text" data-i18n="nav.portfolio">CARDFOLIO</h1>

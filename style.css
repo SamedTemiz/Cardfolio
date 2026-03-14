@@ -870,3 +870,50 @@ a.ui-overlay:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 211, 105, 0.4);
 }
+
+/* Index progress overlay: full-screen loading until card images are ready */
+.index-progress-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(5, 5, 5, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.35s ease;
+}
+
+.index-progress-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.index-progress-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.index-progress-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: indexProgressSpin 0.8s linear infinite;
+}
+
+@keyframes indexProgressSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.index-progress-text {
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

@@ -90,6 +90,12 @@ async function init() {
         return;
     }
 
+    // Portfolio path: show loading overlay until card images are ready
+    const indexProgressOverlay = document.getElementById('indexProgressOverlay');
+    if (indexProgressOverlay) {
+        indexProgressOverlay.style.display = 'flex';
+    }
+
     // Default to locked if in stack mode (no hasVisited or explicit stack)
     if (!isGridMode) lockScroll(); else unlockScroll();
 
@@ -119,6 +125,7 @@ async function init() {
             if (profile.name) document.title = `Cardfolio | ${profile.name}`;
 
             if (projects.length === 0) {
+                hideIndexProgressOverlay();
                 showNoProjectsUI();
                 return;
             }
@@ -126,12 +133,17 @@ async function init() {
             images = projects.map(p => p.mainImage || (p.images && p.images[0]) || "");
 
             createCards().then(() => {
-                if (sessionStorage.getItem("returnFromDetail") === "1") {
-                    sessionStorage.removeItem("returnFromDetail");
-                    showGridWithoutIntro();
-                } else {
-                    setTimeout(animateIntro, 50);
-                }
+                hideIndexProgressOverlay();
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        if (sessionStorage.getItem("returnFromDetail") === "1") {
+                            sessionStorage.removeItem("returnFromDetail");
+                            showGridWithoutIntro();
+                        } else {
+                            setTimeout(animateIntro, 50);
+                        }
+                    });
+                });
             });
             initDraggable();
             setupMatchMedia();
@@ -139,11 +151,24 @@ async function init() {
             // Show UI overlays now that content is loaded
             document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = '');
         } else {
+            hideIndexProgressOverlay();
             showNotFoundUI(username);
         }
     } catch (error) {
         console.error("Initialization failed:", error);
+        hideIndexProgressOverlay();
     }
+}
+
+function hideIndexProgressOverlay() {
+    const overlay = document.getElementById('indexProgressOverlay');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.remove();
+    }, 400);
 }
 
 function showNotFoundUI(username) {
