@@ -7,6 +7,7 @@ export const translations = {
         "nav.back": "← BACK TO CARDFOLIO",
 
         "index.dragToExplore": "DRAG TO EXPLORE",
+        "index.loading": "Loading Cardfolio",
         "index.gridView": "GRID VIEW",
         "index.stackView": "STACK VIEW",
         "index.footerRights": "© 2026 YUNUS EMRE TEMIZ",
@@ -135,6 +136,7 @@ export const translations = {
         "nav.back": "← CARDFOLIO'YA DÖN",
 
         "index.dragToExplore": "KEŞFETMEK İÇİN SÜRÜKLE",
+        "index.loading": "Cardfolio yükleniyor",
         "index.gridView": "IZGARA GÖRÜNÜMÜ",
         "index.stackView": "KÜME GÖRÜNÜMÜ",
         "index.footerRights": "© 2026 YUNUS EMRE TEMİZ",
