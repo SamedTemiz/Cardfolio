@@ -3,6 +3,18 @@
 
 <head>
     <meta charset="UTF-8" />
+    <script>
+      (function () {
+        var pathParts = window.location.pathname.split('/').filter(Boolean);
+        if (pathParts.length >= 4 && pathParts[2] === 'project') {
+          window.location.replace('/project-detail.html?uid=' + encodeURIComponent(pathParts[0]) + '&user=' + encodeURIComponent(pathParts[1]) + '&id=' + encodeURIComponent(pathParts[3]));
+          return;
+        }
+        if (pathParts.length >= 3 && pathParts[pathParts.length - 1] === 'profile') {
+          window.location.replace('/profile.html?uid=' + encodeURIComponent(pathParts[0]) + '&user=' + encodeURIComponent(pathParts[1]));
+        }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cardfolio</title>
