@@ -107,6 +107,12 @@ export async function isUsernameAvailable(username, userId) {
     return true;
 }
 
+// UUID is 36 chars (8-4-4-4-12). ShortId is 6. Avoid passing shortId to UUID columns (causes "uuid ~~ unknown" in PG).
+function isFullUuid(value) {
+    if (!value || typeof value !== 'string') return false;
+    return value.length >= 32 && /^[0-9a-f-]{32,36}$/i.test(value);
+}
+
 // ─── Projects ─────────────────────────────────────────────────────────────────
 /**
  * Fetches projects for a given user.
@@ -120,7 +126,7 @@ export async function getProjects(username = null, userId = null) {
         if (!session) return [];
         targetUserId = session.user.id;
     }
-
+    if (!isFullUuid(targetUserId)) return [];
     const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -146,7 +152,7 @@ export async function getProject(userId, projectId) {
     if (!projectId) return null;
 
     let query = supabase.from('projects').select('*').eq('id', projectId);
-    if (userId) {
+    if (userId && isFullUuid(userId)) {
         query = query.eq('user_id', userId);
     }
 
