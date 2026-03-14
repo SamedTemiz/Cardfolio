@@ -14,6 +14,14 @@
 
 <body class="gallery-body">
 
+    <!-- Progress overlay: shown until gallery data and images are loaded -->
+    <div id="galleryProgressOverlay" class="gallery-progress-overlay" aria-hidden="false">
+        <div class="gallery-progress-content">
+            <div class="gallery-progress-spinner"></div>
+            <p class="gallery-progress-text" data-i18n="gallery.loading">Loading...</p>
+        </div>
+    </div>
+
     <!-- Top Navigation -->
     <a href="index.html" class="ui-overlay gallery-nav-back" data-i18n="nav.back">&larr; BACK TO CARDFOLIO</a>
 
@@ -33,6 +41,14 @@
     <div class="gallery-drag-hint" id="galleryDragHint">
         <dotlottie-player src="/drag_anim.lottie" background="transparent" speed="1" loop autoplay
             style="width: 180px; height: 180px;"></dotlottie-player>
+    </div>
+
+    <!-- Error / not-found state: shown when project fails to load or Supabase error -->
+    <div id="galleryErrorState" class="gallery-error-state" aria-hidden="true" style="display: none;">
+        <div class="gallery-error-card">
+            <p class="gallery-error-message" id="galleryErrorMessage"></p>
+            <a href="index.html" id="galleryErrorBackBtn" class="gallery-error-back-btn" data-i18n="gallery.backToMenu">Back to Cardfolio</a>
+        </div>
     </div>
 
     <!-- The Horizontal Scroll Container -->
@@ -77,20 +93,40 @@
     <!-- Gallery Data Loader -->
     <script type="module">
         import { getProject, getProfile, getOptimizedImageUrl } from "./src/data.js";
+        import { translateText } from "./src/i18n.js";
+
+        function hideProgressOverlay() {
+            const overlay = document.getElementById('galleryProgressOverlay');
+            if (!overlay) return;
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+            setTimeout(() => overlay.remove(), 400);
+        }
+
+        function showGalleryError(messageI18nKey, backHref = 'index.html') {
+            hideProgressOverlay();
+            const panel = document.getElementById('galleryErrorState');
+            const msgEl = document.getElementById('galleryErrorMessage');
+            const backBtn = document.getElementById('galleryErrorBackBtn');
+            if (panel && msgEl) {
+                msgEl.textContent = translateText(messageI18nKey);
+                if (backBtn) backBtn.href = backHref;
+                panel.style.display = 'flex';
+                panel.setAttribute('aria-hidden', 'false');
+            }
+        }
 
         async function initGallery() {
-            // 1. Parse ID and User from URL
             const params = new URLSearchParams(window.location.search);
             const projectId = params.get('id');
             const username = params.get('user');
             const uid = params.get('uid');
 
             if (!uid && !username) {
-                console.error("Missing UID or Username");
+                showGalleryError('gallery.errorMissingParams');
                 return;
             }
 
-            // Set back link to preserve tenant
             const backBtn = document.querySelector('.gallery-nav-back');
             if (backBtn) {
                 const search = new URLSearchParams();
@@ -100,7 +136,6 @@
                 if (searchStr) backBtn.href = `index.html?${searchStr}`;
             }
 
-            // 2. Load Profile and Project in parallel
             try {
                 const [profile, project] = await Promise.all([
                     getProfile(username, uid),
@@ -111,40 +146,60 @@
                     document.title = `Gallery | ${profile.name}`;
                 }
 
-                if (project) {
-                    // 3. Update Title and Desc
-                    const titleEl = document.getElementById('gallery-title');
-                    const yearEl = document.getElementById('gallery-year');
-
-                    if (titleEl) {
-                        titleEl.textContent = project.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
-                        titleEl.removeAttribute('data-i18n');
-                    }
-                    if (yearEl) {
-                        yearEl.textContent = project.description;
-                        yearEl.removeAttribute('data-i18n');
-                    }
-
-                    // 4. Inject Images with Optimization and Lazy Loading
-                    const galleryContainer = document.getElementById('galleryContainer');
-                    if (galleryContainer && project.images) {
-                        galleryContainer.innerHTML = project.images.map(url => {
-                            // High quality for detail view, but still optimized WebP
-                            const optimizedUrl = getOptimizedImageUrl(url, { width: 1600, quality: 85, format: 'webp' });
-                            return `
-                                <div class="gallery-slide">
-                                    <img src="${optimizedUrl}" alt="${project.name}" loading="lazy">
-                                </div>
-                            `;
-                        }).join('');
-                    }
-                } else {
-                    // Not found
-                    const titleEl = document.getElementById('gallery-title');
-                    if (titleEl) titleEl.textContent = "Project Not Found";
+                if (!project) {
+                    const backHref = username || uid ? `index.html?${new URLSearchParams({ user: username || '', uid: uid || '' }).toString()}` : 'index.html';
+                    showGalleryError('gallery.errorNotFound', backHref);
+                    return;
                 }
+
+                const titleEl = document.getElementById('gallery-title');
+                const yearEl = document.getElementById('gallery-year');
+                if (titleEl) {
+                    titleEl.textContent = project.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
+                    titleEl.removeAttribute('data-i18n');
+                }
+                if (yearEl) {
+                    yearEl.textContent = project.description;
+                    yearEl.removeAttribute('data-i18n');
+                }
+
+                const galleryContainer = document.getElementById('galleryContainer');
+                if (!galleryContainer || !project.images || project.images.length === 0) {
+                    const search = new URLSearchParams();
+                    if (username) search.set('user', username);
+                    if (uid) search.set('uid', uid);
+                    showGalleryError('gallery.errorNoImages', search.toString() ? `index.html?${search.toString()}` : 'index.html');
+                    return;
+                }
+
+                galleryContainer.innerHTML = project.images.map(url => {
+                    const optimizedUrl = getOptimizedImageUrl(url, { width: 1600, quality: 85, format: 'webp' });
+                    return `
+                        <div class="gallery-slide">
+                            <img src="${optimizedUrl}" alt="${project.name}" loading="eager"
+                                onerror="if (this.src !== '${url}') this.src = '${url}';">
+                        </div>
+                    `;
+                }).join('');
+
+                const imgs = galleryContainer.querySelectorAll('.gallery-slide img');
+                const loadPromises = Array.from(imgs).map((img) => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve) => {
+                        img.addEventListener('load', resolve, { once: true });
+                        img.addEventListener('error', resolve, { once: true });
+                    });
+                });
+                await Promise.all(loadPromises);
+                sessionStorage.setItem("returnFromDetail", "1");
+                hideProgressOverlay();
             } catch (error) {
                 console.error("Gallery initialization failed:", error);
+                const search = new URLSearchParams();
+                if (typeof username !== 'undefined' && username) search.set('user', username);
+                if (typeof uid !== 'undefined' && uid) search.set('uid', uid);
+                const backHref = search.toString() ? `index.html?${search.toString()}` : 'index.html';
+                showGalleryError('gallery.errorLoadFailed', backHref);
             }
         }
 

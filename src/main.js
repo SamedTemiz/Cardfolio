@@ -116,6 +116,7 @@ async function init() {
                 const upName = profile.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
                 footerNameEl.textContent = `© ${new Date().getFullYear()} ${upName}`;
             }
+            if (profile.name) document.title = `Cardfolio | ${profile.name}`;
 
             if (projects.length === 0) {
                 showNoProjectsUI();
@@ -124,15 +125,19 @@ async function init() {
 
             images = projects.map(p => p.mainImage || (p.images && p.images[0]) || "");
 
-            createCards();
+            createCards().then(() => {
+                if (sessionStorage.getItem("returnFromDetail") === "1") {
+                    sessionStorage.removeItem("returnFromDetail");
+                    showGridWithoutIntro();
+                } else {
+                    setTimeout(animateIntro, 50);
+                }
+            });
             initDraggable();
             setupMatchMedia();
 
             // Show UI overlays now that content is loaded
             document.querySelectorAll('.ui-overlay, .bottom-area, .drag-hint').forEach(el => el.style.display = '');
-
-            // Play the full intro on every load to ensure WOW effect
-            setTimeout(animateIntro, 100);
         } else {
             showNotFoundUI(username);
         }
@@ -192,36 +197,18 @@ function showNoProjectsUI() {
 }
 
 function createCards() {
-    // Setup Intersection Observer for Progressive/Lazy loading of background images
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const card = entry.target;
-                const rawUrl = card.dataset.rawUrl;
-                if (rawUrl) {
-                    // Use optimized card thumbnail (width around 600px for retina support)
-                    const optimizedUrl = getOptimizedImageUrl(rawUrl, { width: 600, quality: 75, format: 'webp' });
-                    card.style.backgroundImage = `url(${optimizedUrl})`;
-                    card.removeAttribute('data-raw-url');
-                }
-                observer.unobserve(card);
-            }
-        });
-    }, { rootMargin: '200px' });
+    const loadPromises = [];
 
     projects.forEach((proj, index) => {
         const urlParams = new URLSearchParams(window.location.search);
         const username = urlParams.get('user');
         const uid = urlParams.get('uid');
 
-        const url = proj.mainImage || (proj.images && proj.images[0]) || "";
+        const rawUrl = proj.mainImage || (proj.images && proj.images[0]) || "";
         const card = document.createElement("a");
         card.href = `project-detail.html?user=${username}&id=${proj.id}&uid=${uid || ''}`;
         card.className = "card";
-
-        // Store original URL and let Observer load it
-        card.dataset.rawUrl = url;
-
+        card.dataset.rawUrl = rawUrl;
         card.setAttribute("data-hover-text", translateText("card.viewProject"));
 
         gsap.set(card, {
@@ -235,10 +222,36 @@ function createCards() {
             zIndex: projects.length - index
         });
 
+        if (!rawUrl) {
+            loadPromises.push(Promise.resolve());
+        } else {
+            const optimizedUrl = getOptimizedImageUrl(rawUrl, { width: 600, quality: 75, format: 'webp' });
+            const img = new Image();
+            const p = new Promise((resolve) => {
+                img.onload = () => {
+                    card.style.backgroundImage = `url("${optimizedUrl}")`;
+                    card.removeAttribute('data-raw-url');
+                    if (typeof img.decode === 'function') {
+                        img.decode().then(resolve).catch(() => resolve());
+                    } else {
+                        resolve();
+                    }
+                };
+                img.onerror = () => {
+                    card.style.backgroundImage = `url("${rawUrl}")`;
+                    card.removeAttribute('data-raw-url');
+                    resolve();
+                };
+                img.src = optimizedUrl;
+            });
+            loadPromises.push(p);
+        }
+
         container.appendChild(card);
         cards.push(card);
-        observer.observe(card);
     });
+
+    return Promise.all(loadPromises);
 }
 
 function animateIntro() {
@@ -267,6 +280,12 @@ function animateIntro() {
                 }
             }
         });
+}
+
+function showGridWithoutIntro() {
+    gsap.set(cards, { opacity: 1, y: 0, x: 0, rotation: 0, xPercent: -50, yPercent: -50 });
+    isIntroDone = true;
+    toGrid();
 }
 
 function dismissDragHint() {

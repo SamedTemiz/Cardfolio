@@ -210,3 +210,100 @@ body {
         /* Show only on mobile */
     }
 }
+
+/* Progress overlay: full-screen loading state until gallery is ready */
+.gallery-progress-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(5, 5, 5, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.35s ease;
+}
+
+.gallery-progress-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gallery-progress-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.gallery-progress-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: galleryProgressSpin 0.8s linear infinite;
+}
+
+@keyframes galleryProgressSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.gallery-progress-text {
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Error / not-found state: full-screen card with message and back-to-menu button */
+.gallery-error-state {
+    position: fixed;
+    inset: 0;
+    z-index: 8000;
+    background: rgba(5, 5, 5, 0.97);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.gallery-error-card {
+    max-width: 400px;
+    width: 100%;
+    padding: 40px 32px;
+    background: rgba(20, 20, 22, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-error-message {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+}
+
+.gallery-error-back-btn {
+    display: inline-block;
+    padding: 14px 28px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.gallery-error-back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+}

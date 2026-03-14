@@ -34,6 +34,12 @@ export const translations = {
 
         "gallery.title1": "NEON CYBERPUNK",
         "gallery.desc1": "2026 - LEAD DESIGNER",
+        "gallery.loading": "Loading...",
+        "gallery.errorMissingParams": "Missing user or project. Please open from a portfolio link.",
+        "gallery.errorNotFound": "Project not found.",
+        "gallery.errorNoImages": "This project has no images.",
+        "gallery.errorLoadFailed": "Could not load the project. Check your connection and try again.",
+        "gallery.backToMenu": "Back to Cardfolio",
 
         "admin.sidebarTitle": "CARDFOLIO STUDIO",
         "admin.sidebarLogo": "STUDIO",
@@ -156,6 +162,12 @@ export const translations = {
 
         "gallery.title1": "SİBER PUNK NEON",
         "gallery.desc1": "2026 - BAŞ TASARIMCI",
+        "gallery.loading": "Yükleniyor...",
+        "gallery.errorMissingParams": "Kullanıcı veya proje bilgisi eksik. Lütfen portfolyo linkinden açın.",
+        "gallery.errorNotFound": "Proje bulunamadı.",
+        "gallery.errorNoImages": "Bu projede görsel yok.",
+        "gallery.errorLoadFailed": "Proje yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.",
+        "gallery.backToMenu": "Ana menüye dön",
 
         "admin.sidebarTitle": "CARDFOLIO STÜDYOSU",
         "admin.sidebarLogo": "STÜDYO",
