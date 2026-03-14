@@ -41,6 +41,7 @@ export const translations = {
         "gallery.errorNoImages": "This project has no images.",
         "gallery.errorLoadFailed": "Could not load the project. Check your connection and try again.",
         "gallery.backToMenu": "Back to Cardfolio",
+        "gallery.nextProject": "Next project →",
 
         "admin.sidebarTitle": "CARDFOLIO STUDIO",
         "admin.sidebarLogo": "STUDIO",
@@ -170,6 +171,7 @@ export const translations = {
         "gallery.errorNoImages": "Bu projede görsel yok.",
         "gallery.errorLoadFailed": "Proje yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.",
         "gallery.backToMenu": "Ana menüye dön",
+        "gallery.nextProject": "Sonraki proje →",
 
         "admin.sidebarTitle": "CARDFOLIO STÜDYOSU",
         "admin.sidebarLogo": "STÜDYO",

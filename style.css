@@ -211,6 +211,15 @@ a.ui-overlay:hover {
   letter-spacing: 1px;
 }
 
+.bottom-text-inner span {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px 12px;
+}
+
 /* Footer Edit Link */
 .footer-edit-link {
   color: var(--text-color);
