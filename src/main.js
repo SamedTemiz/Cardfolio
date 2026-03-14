@@ -32,6 +32,19 @@ async function init() {
     const urlParams = new URLSearchParams(window.location.search);
     const pathParts = window.location.pathname.split('/').filter(p => p);
 
+    // 0. Workaround: If server wrongly served index.html for a deep link (e.g. Cloudflare rewrite missed),
+    // redirect to the correct page with query params so content loads.
+    if (pathParts.length >= 4 && pathParts[2] === 'project') {
+        const shortId = pathParts[0], username = pathParts[1], projectId = pathParts[3];
+        window.location.replace(`/project-detail.html?uid=${encodeURIComponent(shortId)}&user=${encodeURIComponent(username)}&id=${encodeURIComponent(projectId)}`);
+        return;
+    }
+    if (pathParts.length >= 3 && pathParts[pathParts.length - 1] === 'profile') {
+        const shortId = pathParts[0], username = pathParts[1];
+        window.location.replace(`/profile.html?uid=${encodeURIComponent(shortId)}&user=${encodeURIComponent(username)}`);
+        return;
+    }
+
     // 1. Guard: If this is a specific HTML file request, let the standard handler take care of it.
     const knownPages = ['profile.html', 'project-detail.html', 'admin.html', 'profile', 'project'];
     if (pathParts.some(part => knownPages.includes(part))) {
