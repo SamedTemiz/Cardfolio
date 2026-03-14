@@ -5,7 +5,7 @@
 
 # Hybrid paths (placeholders; most specific first)
 /:id/:name/profile  /profile.html  200
-/:id/:name/project/:projectId  /project-detail.html  200
+/:id/:name/project/*  /project-detail.html  200
 /:id/:name  /index.html  200
 /:id  /index.html  200
 /*  /index.html  200

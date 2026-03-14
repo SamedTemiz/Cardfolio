@@ -137,6 +137,7 @@ async function init() {
                 const upName = profile.name.toLocaleUpperCase(window.currentLanguage === 'tr' ? 'tr-TR' : 'en-US');
                 footerNameEl.textContent = `© ${new Date().getFullYear()} ${upName}`;
             }
+            if (profile.name) document.title = `Cardfolio | ${profile.name}`;
 
             if (projects.length === 0) {
                 showNoProjectsUI();
